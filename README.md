@@ -25,7 +25,7 @@ pip install chazutsu
 
 You can download the datasets by chazutsu like following.
 
-```pycon
+```py
 >>>from chazutsu.datasets import datasets
 >>>datasets.list("language_model")
 Penn Treebank(PTB): POS Annotated data (size: xx kb)
@@ -40,7 +40,7 @@ The list of datasets are described in `datasets/README.md`. You can confirm it o
 
 You can download the datasets as table of [BigQuery](https://cloud.google.com/bigquery/) by chazutsu like following.
 
-```pycon
+```py
 >>>from chazutsu.datasets import datasets
 >>>datasets.auth("project_id", "account", "paht/to/key.pem")
 Connect to BigQuery
@@ -52,7 +52,7 @@ PTB data is inserted into table_name
 
 If the file size is too large to deal with, you can split to some files.
 
-```pycon
+```py
 >>>from chazutsu.datasets import datasets
 >>>datasets.download.PTB(directory="my/dataset/ptb/", each_size="200")
 ptb1.txt, ptb2.txt, ptb3.txt is saved to my/dataset/ptb/ (each size is 200kb)
@@ -66,7 +66,7 @@ You don't want to load the all dataset to watch the some lines of data!
 
 If you direct the `sample_size`, you can get the file that is sampled from dataset.
 
-```pycon
+```py
 >>>from chazutsu.datasets import datasets
 >>>datasets.download.PTB(directory="my/dataset/ptb/", sample_size=500)
 ptb.txt is saved to my/dataset/ptb/
