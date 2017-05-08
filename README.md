@@ -48,17 +48,15 @@ Connect to BigQuery
 PTB data is inserted into table_name
 ```
 
-### Split to files
+### Split to train/test files
 
-If the file size is too large to deal with, you can split to some files.
+You can split the data for training and test.  
 
 ```py
 >>>from chazutsu.datasets import datasets
->>>datasets.download.PTB(directory="my/dataset/ptb/", each_size="200")
-ptb1.txt, ptb2.txt, ptb3.txt is saved to my/dataset/ptb/ (each size is 200kb)
+>>>datasets.download.PTB(directory="my/dataset/ptb/", test_size=0.3)
+ptb_train.txt, ptb_test.txt is saved to my/dataset/ptb/
 ```
-
-You can use "M" and "G" to direct the file size.
 
 ### Make sample file
 
