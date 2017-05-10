@@ -18,7 +18,7 @@ class SampleDataset(Dataset):
             )
 
     def extract(self, path):
-        extracted = self.extract_file(path, "README.md")
+        extracted = self.extract_file(path, "chazutsu-master/README.md")
         return extracted[0]
 
 
@@ -36,7 +36,7 @@ class TestDataset(unittest.TestCase):
     def test_extract_file_zip(self):
         d = SampleDataset()
         path = d.save_dataset(DATA_ROOT)
-        extracteds = d.extract_file(path, ["README.md", "docs/chazutsu.png"])
+        extracteds = d.extract_file(path, ["chazutsu-master/README.md", "chazutsu-master/docs/chazutsu.png"])
         for e in extracteds:
             os.remove(e)
         self.assertEqual(len(extracteds), 2)
@@ -45,7 +45,7 @@ class TestDataset(unittest.TestCase):
         d = SampleDataset()
         d.download_url = d.download_url.replace(".zip", ".tar.gz")
         path = d.save_dataset(DATA_ROOT)
-        extracteds = d.extract_file(path, ["LICENSE", "docs/feature.png"])
+        extracteds = d.extract_file(path, ["chazutsu-master/LICENSE", "chazutsu-master/docs/feature.png"])
         for e in extracteds:
             os.remove(e)
         self.assertEqual(len(extracteds), 2)

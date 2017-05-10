@@ -71,7 +71,7 @@ class MovieReview(Dataset):
             for i, p in enumerate([negative_path, positive_path]):
                 label = i # negative = 0, positive = 1
                 self.logger.info(
-                    "Extract data from polarity file ({}).".format("negative" if label == 0 else "positive")
+                    "Extracting {} data.".format("negative" if label == 0 else "positive")
                     )
                 for txt in tqdm(os.listdir(p)):
                     with open(os.path.join(p, txt)) as tf:
@@ -98,7 +98,7 @@ class MovieReview(Dataset):
             for e in extracteds:
                 label = 0 if e.endswith(".neg") else 1
                 self.logger.info(
-                    "Extract data from polarity_v1 file ({}).".format("negative" if label == 0 else "positive")
+                    "Extracting {} data.".format("negative" if label == 0 else "positive")
                     )
                 total = self.get_line_count(e)
                 with open(e, mode="r", errors="replace") as p:
@@ -110,3 +110,63 @@ class MovieReview(Dataset):
             os.remove(e)
         
         return polarity_file
+
+    def _extract_rating(self, path):
+        dir, file_name = os.path.split(path)
+        work_dir = os.path.join(dir, "tmp")
+        rating_file_path = os.path.join(dir, "review_rating.txt")
+
+        with tarfile.open(path) as t:
+            t.extractall(path=work_dir)
+        
+        rating_dir = os.path.join(work_dir, "scaledata")
+
+        rating_file = open(rating_file_path, "w")
+        for user in os.listdir(rating_dir):
+            user_dir = os.path.join(rating_dir, user)
+            if not os.path.isdir(user_dir):
+                continue
+            
+            sub_in_review_file = os.path.join(user_dir, "subj." + user)
+            user_rating_file = os.path.join(user_dir, "rating." + user)
+            total = self.get_line_count(sub_in_review_file)
+            self.logger.info("Extracting user {}'s rating data.".format(user))
+            with open(sub_in_review_file, "r") as sr:
+                with open(user_rating_file, "r") as ur:
+                    for review, rating in tqdm(zip(sr, ur), total=total):
+                        _rv = review.strip().replace("\t", " ")
+                        _r = rating.strip()
+                        rating_file.write("\t".join([_r, _rv]) + os.linesep)
+        
+        rating_file.close()
+        os.remove(path)
+        shutil.rmtree(work_dir)
+
+        return rating_file_path
+
+    def _extract_subjectivity(self, path):
+        dir, file_name = os.path.split(path)
+        extracteds = self.extract_file(
+            path, 
+            ["plot.tok.gt9.5000","quote.tok.gt9.5000"],
+            remove=True
+        )
+
+        subjectivity_file = os.path.join(dir, "subjectivity.txt")
+        with open(subjectivity_file, mode="w") as f:
+            for e in extracteds:
+                fname = os.path.basename(e)
+                label = 1 if fname.startswith("plot.") else 0  # subjective(plot) = 1
+                self.logger.info(
+                    "Extracting {} data.".format("subjective" if label == 1 else "objective")
+                    )
+                total = self.get_line_count(e)
+                with open(e, mode="r", errors="replace") as sb:
+                    for ln in tqdm(sb, total=total):
+                        review = ln.strip().replace("\t", " ")
+                        f.write("\t".join([str(label), review]) + os.linesep)
+        
+        for e in extracteds:
+            os.remove(e)
+        
+        return subjectivity_file

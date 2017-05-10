@@ -78,6 +78,68 @@ class TestMovieReview(unittest.TestCase):
         self.assertEqual(pos, 5331)
         self.assertEqual(neg, 5331)
 
+    def test_extract_rating(self):
+        d = chazutsu.datasets.MovieReview.rating()
+
+        file_path = self._download_file(d)
+        path = d._extract_rating(file_path)
+
+        try:
+            with open(path) as f:
+                for ln in f:
+                    els = ln.strip().split("\t")
+                    if len(els) != 2:
+                        raise Exception("data file is not constructed by label and text.")
+        except Exception as ex:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            self.fail(ex)
+
+        count = d.get_line_count(path)
+        
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        os.remove(path)
+
+        self.assertTrue(count > 0)
+
+    def test_extract_subjectivity(self):
+        d = chazutsu.datasets.MovieReview.subjectivity()
+
+        file_path = self._download_file(d)
+        path = d._extract_subjectivity(file_path)
+
+        sub = 0
+        obj = 0
+
+        try:
+            with open(path) as f:
+                for ln in f:
+                    els = ln.strip().split("\t")
+                    if len(els) != 2:
+                        raise Exception("data file is not constructed by label and text.")
+                    if els[0] == "1":
+                        sub += 1
+                    else:
+                        obj += 1
+        except Exception as ex:
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+            self.fail(ex)
+        count = d.get_line_count(path)
+        
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+        os.remove(path)
+        # sub=5000, obj=5000
+        self.assertEqual(count, 5000*2)
+        self.assertEqual(sub, 5000)
+        self.assertEqual(obj, 5000)
+    
+    def test_download(self):
+        root = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
+        shutil.rmtree(root)
+
     def _download_file(self, dataset):
         url = dataset.download_url
         file_path = os.path.join(DATA_ROOT, dataset.kind)

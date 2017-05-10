@@ -4,6 +4,7 @@ import mmap
 import random
 import zipfile
 import tarfile
+from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
 
@@ -41,7 +42,7 @@ class Dataset():
         #   directory: don't make default directory in download method because can not specify current dir.
         #   test_size: have to be smaller than 1
         self.check_directory(directory)
-        dataset_root = os.path.join(directory, self.name)
+        dataset_root = os.path.join(directory, self.name.lower().replace(" ", "_"))
         if not os.path.isdir(dataset_root):
             os.mkdir(dataset_root)
 
@@ -92,31 +93,28 @@ class Dataset():
     def extract_file(self, path, relative_paths, remove=True):
         # unpack the archive file and extract directed path file
         base, _ = os.path.splitext(path)
-        root = os.path.basename(path).split(".")[0] + "/"
         target = relative_paths if isinstance(relative_paths, (tuple, list)) else [relative_paths]
 
         extracteds = []
         if zipfile.is_zipfile(path):
             with zipfile.ZipFile(path) as z:
-                for n in z.namelist():
-                    if n.replace(root, "") in target:
-                        file_name = os.path.basename(n)
-                        p = os.path.join(os.path.dirname(path), file_name)
-                        with open(p, "wb") as f:
-                            f.write(z.read(n))
-                        extracteds.append(p)
+                for n in filter(lambda n: n in target, z.namelist()):
+                    file_name = os.path.basename(n)
+                    p = os.path.join(os.path.dirname(path), file_name)
+                    with open(p, "wb") as f:
+                        f.write(z.read(n))
+                    extracteds.append(p)
 
         elif tarfile.is_tarfile(path):
             with tarfile.open(path) as t:
-                for m in t.getnames():
-                    if m.replace(root, "") in target:
-                        file_name = os.path.basename(m)
-                        p = os.path.join(os.path.dirname(path), file_name)
-                        with open(p, "wb") as f:
-                            with t.extractfile(m) as tf:
-                                for c in tf:
-                                    f.write(c)
-                        extracteds.append(p)
+                for m in filter(lambda m: m in target, t.getnames()):
+                    file_name = os.path.basename(m)
+                    p = os.path.join(os.path.dirname(path), file_name)
+                    with open(p, "wb") as f:
+                        with t.extractfile(m) as tf:
+                            for c in tf:
+                                f.write(c)
+                    extracteds.append(p)
         
         if remove:
             # remove downloaded raw file (zip/tar.gz etc)
@@ -189,12 +187,16 @@ class Dataset():
         return sample_path
 
     def _get_file_name(self, resp):
-        cd = resp.headers["content-disposition"]
-        file_matches = re.search("filename=(.+)", cd)
         file_name = ""
-        if file_matches:
-            file_name = file_matches.group(0)
-            file_name = file_name.split("=")[1]
+        if "content-disposition" in resp.headers:
+            cd = resp.headers["content-disposition"]
+            file_matches = re.search("filename=(.+)", cd)
+            if file_matches:
+                file_name = file_matches.group(0)
+                file_name = file_name.split("=")[1]
+        else:
+            parsed = urlparse(self.download_url)
+            file_name = os.path.basename(parsed.path)
 
         return file_name
 
