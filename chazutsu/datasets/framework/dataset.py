@@ -98,22 +98,22 @@ class Dataset():
         extracteds = []
         if zipfile.is_zipfile(path):
             with zipfile.ZipFile(path) as z:
-                for n in map(lambda n: n.replace(root, ""), z.namelist()):
-                    if n in target:
+                for n in z.namelist():
+                    if n.replace(root, "") in target:
                         file_name = os.path.basename(n)
                         p = os.path.join(os.path.dirname(path), file_name)
                         with open(p, "wb") as f:
-                            f.write(z.read(root + n))
+                            f.write(z.read(n))
                         extracteds.append(p)
 
         elif tarfile.is_tarfile(path):
             with tarfile.open(path) as t:
-                for m in map(lambda m: m.replace(root, ""), t.getnames()):
-                    if m in target:
+                for m in t.getnames():
+                    if m.replace(root, "") in target:
                         file_name = os.path.basename(m)
                         p = os.path.join(os.path.dirname(path), file_name)
                         with open(p, "wb") as f:
-                            with t.extractfile(root + m) as tf:
+                            with t.extractfile(m) as tf:
                                 for c in tf:
                                     f.write(c)
                         extracteds.append(p)

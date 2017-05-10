@@ -24,6 +24,7 @@ class SampleDataset(Dataset):
 
 DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
 
+
 class TestDataset(unittest.TestCase):
 
     def test_save_dataset(self):
