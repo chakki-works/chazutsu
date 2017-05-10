@@ -26,12 +26,16 @@ pip install chazutsu
 You can download the datasets by chazutsu like following.
 
 ```py
->>>from chazutsu.datasets import datasets
->>>datasets.list("language_model")
-Penn Treebank(PTB): POS Annotated data (size: xx kb)
+>>>import chazutsu
+>>>chazutsu.datasets.MovieReview.polarity().show()
+About Moview Review Data
+movie review data that is annotated by 3 kinds of label (polarity, subjective rating, subjectivity).
+see also: http://www.cs.cornell.edu/people/pabo/movie-review-data/
+>>>chazutsu.datasets.MovieReview.polarity().download()
+Make directory for download the file to /your/current/directory
+Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
+The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
 ...
->>>datasets.download.PTB(directory="my/dataset/ptb/")
-ptb.txt is saved to my/dataset/ptb/
 ```
 
 The list of datasets are described in `datasets/README.md`. You can confirm it on GitHub too (and if you send the pull request, dataset list is updated!).
@@ -53,21 +57,23 @@ PTB data is inserted into table_name
 You can split the data for training and test.  
 
 ```py
->>>from chazutsu.datasets import datasets
->>>datasets.download.PTB(directory="my/dataset/ptb/", test_size=0.3)
-ptb_train.txt, ptb_test.txt is saved to my/dataset/ptb/
+>>>import chazutsu
+>>>chazutsu.datasets.MovieReview.polarity().download(test_size=0.3)
+...
+File is splited to review_polarity_train.txt & review_polarity_test.txt. Each records are 1400 & 600 (test_size=30.00%).
+...
 ```
 
 ### Make sample file
 
 You don't want to load the all dataset to watch the some lines of data!
 
-If you direct the `sample_size`, you can get the file that is sampled from dataset.
+If you direct the `sample_count`, you can get the file that is sampled from dataset.
 
 ```py
->>>from chazutsu.datasets import datasets
->>>datasets.download.PTB(directory="my/dataset/ptb/", sample_size=500)
-ptb.txt is saved to my/dataset/ptb/
-ptb_sample.txt is also saved (includes 5oo samples)
+>>>import chazutsu
+>>>chazutsu.datasets.MovieReview.polarity().download(sample_count=100)
+...
+Make review_polarity_samples.txt by picking 100 records from original file.
+...
 ```
-

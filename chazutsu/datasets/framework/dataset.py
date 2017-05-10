@@ -37,12 +37,12 @@ class Dataset():
             self.logger.setLevel(_level)
             self.logger.addHandler(handler)
     
-    def download(self, directory, test_size=0.3, sample_size=0, keep_raw=False):
+    def download(self, directory="", shuffle=True, test_size=0.3, sample_count=0, keep_raw=False):
         # input parameter check
         #   directory: don't make default directory in download method because can not specify current dir.
         #   test_size: have to be smaller than 1
-        self.check_directory(directory)
-        dataset_root = os.path.join(directory, self.name.lower().replace(" ", "_"))
+        dir = self.check_directory(directory)
+        dataset_root = os.path.join(dir, self.name.lower().replace(" ", "_"))
         if not os.path.isdir(dataset_root):
             os.mkdir(dataset_root)
 
@@ -51,6 +51,15 @@ class Dataset():
 
         # extract dataset file from saved file
         extracted_file_path = self.extract(save_file_path)
+
+        if shuffle:
+            self.logger.info("Shuffle the extracted dataset.")
+            lines = []
+            with open(extracted_file_path) as f:
+                lines = f.readlines()
+            random.shuffle(lines)
+            with open(extracted_file_path, "w") as f:
+                f.writelines(lines)
 
         # split to train & test
         train_test_path = self.train_test_split(extracted_file_path, test_size)
@@ -208,15 +217,16 @@ class Dataset():
                 count += 1
         return count
 
-    def check_directory(self, directory, make_default_at=""):
+    def check_directory(self, directory):
         if os.path.isdir(directory):
             return directory
-        elif make_default_at:
-            data_dir = os.path.join(base_dir, "data")
-            os.mkdir(data_dir)
-            return data_dir
         else:
-            raise Exception("Directed directory {} does not exist.".format(directory))
+            current = os.getcwd()
+            self.logger.info("Make directory for download the file to {}.".format(current))
+            data_dir = os.path.join(current, "data")
+            if not os.path.isdir(data_dir):
+                os.mkdir(data_dir)
+            return data_dir
 
     def show(self):
         print("About {}".format(self.name))
