@@ -40,18 +40,6 @@ The dataset file is saved to /your/current/directory/data/moview_review_data/rev
 
 The list of datasets is described in [`datasets/README.md`](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets).
 
-### Save to BigQuery
-
-You can download the datasets as table of [BigQuery](https://cloud.google.com/bigquery/) by chazutsu like following.
-
-```py
->>>from chazutsu.datasets import datasets
->>>datasets.auth("project_id", "account", "paht/to/key.pem")
-Connect to BigQuery
->>>datasets.download.PTB(directory="bq:table_name")
-PTB data is inserted into table_name
-```
-
 ### Split to train/test files
 
 You can split the data for training and test.  
@@ -77,3 +65,4 @@ If you direct the `sample_count`, you can get the file that is sampled from data
 Make review_polarity_samples.txt by picking 100 records from original file.
 ...
 ```
+
