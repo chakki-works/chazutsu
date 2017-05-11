@@ -36,9 +36,15 @@ Make directory for downloading the file to /your/current/directory
 Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
 The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
 ...
+Done all process! Make below files at /your/current/directory/data/moview_review_data
+ review_polarity_test.txt
+ review_polarity_train.txt
 ```
 
+**Not only the downloading the file, expand & format it. So the prepared files are ready to use!**
+
 The list of datasets is described in [`datasets/README.md`](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets).
+
 
 ### Split to train/test files
 
