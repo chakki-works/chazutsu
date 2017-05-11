@@ -19,5 +19,48 @@ If you want to download this dataset, please direct the kind as following.
 * `MovieReview.rating`
 * `MovieReview.subjectivity`
 
-## [Penn Treebank](http://www.nltk.org/nltk_data/)
+**Dataset File format**
 
+* label (polarity, rating, subjectivity)
+* text
+
+**Papers (from official site)**
+
+* Bo Pang, Lillian Lee, and Shivakumar Vaithyanathan, [Thumbs up? Sentiment Classification using Machine Learning Techniques](http://www.cs.cornell.edu/home/llee/papers/sentiment.home.html), Proceedings of EMNLP 2002.
+* Bo Pang and Lillian Lee, [A Sentimental Education: Sentiment Analysis Using Subjectivity Summarization Based on Minimum Cuts](A sentimental education: Sentiment analysis using subjectivity), Proceedings of ACL 2004.
+* Bo Pang and Lillian Lee, [Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales](http://www.cs.cornell.edu/home/llee/papers/pang-lee-stars.home.html), Proceedings of ACL 2005.
+
+## [Customer Review Datasets](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets)
+
+It offers annotated product's review. The annotation is done as below:
+
+* [t]: title
+* xxxx[+n|-n]: xxxx is feature, and evaluation (+|-) is expressed by 1-3
+* [p]: describe about feature but you have to interpret pronoun
+* [u]: does not describe about feature
+* [s]: suggestion or recommendation
+* [cc]: comparison with a competing product from a different brand
+* [cs]: comparison with a competing product from the same brand
+
+If you want to download this dataset, please direct as following.
+
+* `CustomerReview.5products`: download the dataset that annotated to 5 products
+* `CustomerReview.9additional`: download the dataset that annotated to 9 additional products
+* `CustomerReview.3more`: download the dataset that annotated to 3 more products
+
+(If you want to use `9additional` or `3more`, [you have to intall `unrar` or `bsdtar` to unpack rarfile](https://github.com/markokr/rarfile/blob/master/README.rst))
+
+**Dataset File format**
+
+* sentence-type: t, po (has polarity), -(the sentence that has no annotation)
+* polarity: -3 ~ 3. "po" sentence-type has this value
+  * if sentence includes multiple score(feature), take average
+* detail: (feature)_(polarity)_(attribute) ex: size_-2_u, digital zoom_+1_
+  * if attributes (p, u, s, cc, cs) do not appear, attribute is blank
+* sentence
+
+**Papers (from official site)**
+
+* Hu and Liu, KDD-2004, [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf)
+* Ding, Liu and Yu, WSDM-2008, [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf)
+* Liu et al., IJCAI-2015, [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842)
