@@ -34,7 +34,7 @@ If you want to download this dataset, please direct the kind as following.
 
 This dataset offers annotated product's review. The annotation is done as below:
 
-* [t]: title
+* [t] : title
 * xxxx[+n|-n]: xxxx is feature, and evaluation (+|-) is expressed by 1-3
 * [p]: describe about feature but you have to interpret pronoun
 * [u]: does not describe about feature
