@@ -74,6 +74,17 @@ class Dataset():
         self.logger.info("Done all process!")
         return dataset_root
     
+    def check_directory(self, directory):
+        if os.path.isdir(directory):
+            return directory
+        else:
+            current = os.getcwd()
+            self.logger.info("Make directory for downloading the file to {}.".format(current))
+            data_dir = os.path.join(current, "data")
+            if not os.path.isdir(data_dir):
+                os.mkdir(data_dir)
+            return data_dir
+
     def save_dataset(self, dataset_root):
         # download and save it as raw file
         self.logger.info("Begin downloading the {} dataset from {}.".format(self.name, self.download_url))
@@ -216,17 +227,6 @@ class Dataset():
             while buf.readline():
                 count += 1
         return count
-
-    def check_directory(self, directory):
-        if os.path.isdir(directory):
-            return directory
-        else:
-            current = os.getcwd()
-            self.logger.info("Make directory for download the file to {}.".format(current))
-            data_dir = os.path.join(current, "data")
-            if not os.path.isdir(data_dir):
-                os.mkdir(data_dir)
-            return data_dir
 
     def show(self):
         print("About {}".format(self.name))

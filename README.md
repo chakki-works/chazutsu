@@ -32,13 +32,13 @@ About Moview Review Data
 movie review data that is annotated by 3 kinds of label (polarity, subjective rating, subjectivity).
 see also: http://www.cs.cornell.edu/people/pabo/movie-review-data/
 >>>chazutsu.datasets.MovieReview.polarity().download()
-Make directory for download the file to /your/current/directory
+Make directory for downloading the file to /your/current/directory
 Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
 The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
 ...
 ```
 
-The list of datasets are described in `datasets/README.md`. You can confirm it on GitHub too (and if you send the pull request, dataset list is updated!).
+The list of datasets is described in [`datasets/README.md`](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets).
 
 ### Save to BigQuery
 
