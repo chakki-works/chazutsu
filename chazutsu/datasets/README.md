@@ -4,7 +4,7 @@ Let me introduce supported dataset in chazutsu.
 
 ## [Movie Review Data](http://www.cs.cornell.edu/people/pabo/movie-review-data/)
 
-It offers 3 type of labeled dataset.
+This dataset offers 3 type of labeled dataset.
 
 * positive/negative (1000pos/1000neg)
 * subjective rating (like "two and a half stars")
@@ -32,7 +32,7 @@ If you want to download this dataset, please direct the kind as following.
 
 ## [Customer Review Datasets](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets)
 
-It offers annotated product's review. The annotation is done as below:
+This dataset offers annotated product's review. The annotation is done as below:
 
 * [t]: title
 * xxxx[+n|-n]: xxxx is feature, and evaluation (+|-) is expressed by 1-3
@@ -64,3 +64,33 @@ If you want to download this dataset, please direct as following.
 * Hu and Liu, KDD-2004, [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf)
 * Ding, Liu and Yu, WSDM-2008, [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf)
 * Liu et al., IJCAI-2015, [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842)
+
+
+## [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
+
+This dataset offers 20 newsgroups collection. Some of the categories are related, so these partitioned by 6 group.
+
+* comp: comp.graphics, comp.os.ms-windows.misc, comp.sys.ibm.pc.hardware, comp.sys.mac.hardware, comp.windows.x
+* rec: rec.autos, rec.motorcycles, rec.sport.baseball, rec.sport.hockey
+* sci: sci.crypt, sci.electronics, sci.med, sci.space
+* misc: misc.forsale
+* politics: talk.politics.misc, talk.politics.guns, talk.politics.mideast
+* religion: talk.religion.misc, alt.atheism, soc.religion.christian
+
+For example, `alt.atheism` and `talk.religion.misc`, `comp.windows.x` and `comp.graphics` are close, `rec.sport.baseball` and `sci.crypt` is far.
+
+If you want to download this dataset, please user below class.
+
+* `NewsGroup20`: the version that excludes duplicates and includes only "From" and "Subject" headers.
+
+**Dataset File format**
+
+* news group name
+* category name
+* subject(Subject)
+* author(From)
+* text
+
+**Papers (from official site)**
+
+* [Newsweeder: Learning to filter netnews](http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.22.6286)

@@ -65,13 +65,16 @@ class Dataset():
         train_test_path = self.train_test_split(extracted_file_path, test_size)
     
         # make sample file
-        sample_path = self.make_samples(extracted_file_path, sample_size)
+        sample_path = self.make_samples(extracted_file_path, sample_count)
         
         # remove raw file
         if not keep_raw and os.path.isfile(extracted_file_path):
             os.remove(extracted_file_path)
         
-        self.logger.info("Done all process!")
+        self.logger.info("Done all process! Make below files at {}".format(dataset_root))
+        for f in os.listdir(dataset_root):
+            self.logger.info(" " + f)
+
         return dataset_root
     
     def check_directory(self, directory):

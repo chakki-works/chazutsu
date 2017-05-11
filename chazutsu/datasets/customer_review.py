@@ -45,7 +45,7 @@ class CustomerReview(Dataset):
             return self._extract_products5(path)
         elif self.kind == "additional9":
             return self._extract_additional9(path)
-        elif self.kind == "rating":
+        elif self.kind == "more3":
             return self._extract_more3(path)
         else:
             raise Exception("Directed kind {} is not supported in extraction process.".format(self.kind))

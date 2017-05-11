@@ -77,7 +77,7 @@ class TestDataset(unittest.TestCase):
     
     def test_download(self):
         d = SampleDataset()
-        created_root = d.download(DATA_ROOT, sample_size=10)
+        created_root = d.download(DATA_ROOT, sample_count=10)
         shutil.rmtree(created_root)
 
     def _download_sample_file(self, file_name):
