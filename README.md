@@ -72,3 +72,8 @@ Make review_polarity_samples.txt by picking 100 records from original file.
 ...
 ```
 
+## Supported Dataset
+
+* [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
+* [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#customer-review-datasets)
+* [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#20-newsgroups)
