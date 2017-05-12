@@ -42,7 +42,7 @@ class TestCustomerReview(unittest.TestCase):
         path = d._extract_products5(file_path)
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 4:
@@ -61,7 +61,7 @@ class TestCustomerReview(unittest.TestCase):
         path = d._extract_additional9(file_path)
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 4:
@@ -80,7 +80,7 @@ class TestCustomerReview(unittest.TestCase):
         path = d._extract_more3(file_path)
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 4:

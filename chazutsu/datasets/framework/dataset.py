@@ -55,10 +55,10 @@ class Dataset():
         if shuffle:
             self.logger.info("Shuffle the extracted dataset.")
             lines = []
-            with open(extracted_file_path) as f:
+            with open(extracted_file_path, encoding="utf-8") as f:
                 lines = f.readlines()
             random.shuffle(lines)
-            with open(extracted_file_path, "w") as f:
+            with open(extracted_file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
 
         # split to train & test

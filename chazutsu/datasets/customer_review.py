@@ -68,13 +68,13 @@ class CustomerReview(Dataset):
                 skipped = []
                 p = os.path.join(review_path, txt)
                 total = self.get_line_count(p)
-                with open(p) as rv:
+                with open(p, encoding="utf-8") as rv:
                     for ln in tqdm(rv, total=total):
                         _ln = ln.strip().replace("\t", " ")
                         r = ReviewSentence.parse(_ln)
                         if r is not None:
                             if r.sentence_type:
-                                f.write((r.to_row() + os.linesep).encode("utf-8"))
+                                f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
         
@@ -83,7 +83,7 @@ class CustomerReview(Dataset):
                         " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
                         )
                     self.logger.debug(
-                        os.linesep.join(map(lambda s: " >>{}".format(s), skipped))
+                        "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files
@@ -110,13 +110,13 @@ class CustomerReview(Dataset):
                 skipped = []
                 p = os.path.join(review_path, txt)
                 total = self.get_line_count(p)
-                with open(p, errors="replace") as rv:
+                with open(p, encoding="utf-8", errors="replace") as rv:
                     for ln in tqdm(rv, total=total):
                         _ln = ln.strip().replace("\t", " ")
                         r = ReviewSentence.parse(_ln)
                         if r is not None:
                             if r.sentence_type:
-                                f.write((r.to_row() + os.linesep).encode("utf-8"))
+                                f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
         
@@ -125,7 +125,7 @@ class CustomerReview(Dataset):
                         " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
                         )
                     self.logger.debug(
-                        os.linesep.join(map(lambda s: " >>{}".format(s), skipped))
+                        "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files
@@ -155,13 +155,13 @@ class CustomerReview(Dataset):
                 skipped = []
                 p = os.path.join(review_path, txt)
                 total = self.get_line_count(p)
-                with open(p) as rv:
+                with open(p, encoding="utf-8") as rv:
                     for ln in tqdm(rv, total=total):
                         _ln = ln.strip().replace("\t", " ")
                         r = ReviewSentence.parse(_ln)
                         if r is not None:
                             if r.sentence_type:
-                                f.write((r.to_row() + os.linesep).encode("utf-8"))
+                                f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
         
@@ -170,7 +170,7 @@ class CustomerReview(Dataset):
                         " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
                         )
                     self.logger.debug(
-                        os.linesep.join(map(lambda s: " >>{}".format(s), skipped))
+                        "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files

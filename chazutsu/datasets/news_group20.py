@@ -44,7 +44,7 @@ class NewsGroup20(Dataset):
                         subject,
                         author,
                         text
-                    ]) + os.linesep
+                    ]) + "\n"
                     f.write(ln.encode("utf-8"))
 
         # remove files
@@ -69,9 +69,9 @@ class NewsGroup20(Dataset):
         body = raw_text
 
         if body:
-            body = body.split(os.linesep)
+            body = body.split("\n")
         elif path:
-            with open(path, errors="ignore") as f:
+            with open(path, errors="ignore", encoding="utf-8") as f:
                 body = f.readlines()
         else:
             raise Exception("Can not get parse target text.")

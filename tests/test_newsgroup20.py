@@ -18,7 +18,7 @@ class TestNewsGroup20(unittest.TestCase):
         news_path = d.extract(file_path)
 
         try:
-            with open(news_path) as f:
+            with open(news_path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 5:

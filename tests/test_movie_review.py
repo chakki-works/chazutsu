@@ -22,7 +22,7 @@ class TestMovieReview(unittest.TestCase):
         neg = 0
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.strip().split("\t")
                     if len(els) != 2:
@@ -55,7 +55,7 @@ class TestMovieReview(unittest.TestCase):
         neg = 0
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.strip().split("\t")
                     if len(els) != 2:
@@ -85,7 +85,7 @@ class TestMovieReview(unittest.TestCase):
         path = d._extract_rating(file_path)
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.strip().split("\t")
                     if len(els) != 2:
@@ -113,7 +113,7 @@ class TestMovieReview(unittest.TestCase):
         obj = 0
 
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.strip().split("\t")
                     if len(els) != 2:
