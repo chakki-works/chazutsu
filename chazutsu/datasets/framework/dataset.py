@@ -190,7 +190,7 @@ class Dataset():
 
         total_count = self.get_line_count(original_file_path)
         # for reproducibility of sampling, use fixed interval
-        sample_target = range(0, total_count, round(total_count / sample_count))
+        sample_target = range(0, total_count, total_count // sample_count)
         with open(original_file_path, "rb") as f:
             count = 0
             i = 0
