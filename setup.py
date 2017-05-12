@@ -15,7 +15,7 @@ setup(
         "chazutsu.datasets.framework"
         ],
     url = "https://github.com/chakki-works/chazutsu",
-    download_url = "https://github.com/chakki-works/chazutsu/archive/0.1.tar.gz",
+    download_url = "https://github.com/chakki-works/chazutsu/archive/0.2.tar.gz",
     install_requires=[
         "rarfile>=3.0",
         "requests>=2.14.2",
