@@ -31,7 +31,8 @@ You can download the datasets by chazutsu like following.
 About Moview Review Data
 movie review data that is annotated by 3 kinds of label (polarity, subjective rating, subjectivity).
 see also: http://www.cs.cornell.edu/people/pabo/movie-review-data/
->>>chazutsu.datasets.MovieReview.polarity().download()
+
+>>>r = chazutsu.datasets.MovieReview.polarity().download()
 Make directory for downloading the file to /your/current/directory
 Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
 The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
@@ -43,8 +44,28 @@ Done all process! Make below files at /your/current/directory/data/moview_review
 
 **Not only the downloading the file, expand & format it. So the prepared files are ready to use!**
 
-The list of datasets is described in [`datasets/README.md`](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets).
+```
+>>>r.train_data().head(5)
+   polarity                                             review
+0         0  plot : a little boy born in east germany ( nam...
+1         0  when i arrived in paris in june , 1992 , i was...
+2         0   idle hands  is distasteful , crass and deriva...
+3         0  phaedra cinema , the distributor of such never...
+4         0  one-sided " doom and gloom " documentary about...
+>>> target, data = r.train_data(split_target=True)
+>>> target.head(3)
+0    0
+1    0
+2    0
+Name: polarity, dtype: int64
+>>> data.head(3)
+                                              review
+0  plot : a little boy born in east germany ( nam...
+1  when i arrived in paris in june , 1992 , i was...
+2   idle hands  is distasteful , crass and deriva...
+```
 
+`download` returns pandas-ready object!
 
 ### Split to train/test files
 
