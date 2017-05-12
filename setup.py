@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name = "chazutsu",
-    version = "0.1",
+    version = "0.2",
     description = "The tool to make NLP datasets ready to use",
     keywords = ["machine learning", "nlp", "natural language processing"],
     author = "icoxfog417",
@@ -19,6 +19,7 @@ setup(
     install_requires=[
         "rarfile>=3.0",
         "requests>=2.14.2",
-        "tqdm>=4.11.2"
+        "tqdm>=4.11.2",
+        "pandas>=0.20.1"
     ],
 )

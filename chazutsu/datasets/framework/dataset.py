@@ -7,6 +7,7 @@ import tarfile
 from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
+from chazutsu.datasets.framework.resource import Resource
 
 
 class Dataset():
@@ -68,15 +69,18 @@ class Dataset():
         sample_path = self.make_samples(extracted_file_path, sample_count)
         
         # remove raw file
-        if not keep_raw and os.path.isfile(extracted_file_path):
-            os.remove(extracted_file_path)
+        if len(train_test_path) > 0 and not keep_raw:
+            if os.path.isfile(extracted_file_path):
+                os.remove(extracted_file_path)
         
         self.logger.info("Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
             self.logger.info(" " + f)
+        
+        r = self.make_resource(dataset_root)
 
-        return dataset_root
-    
+        return r
+ 
     def check_directory(self, directory):
         if os.path.isdir(directory):
             return directory
@@ -208,6 +212,9 @@ class Dataset():
         )
 
         return sample_path
+    
+    def make_resource(self, data_root):
+        return Resource(data_root)
 
     def _get_file_name(self, resp):
         file_name = ""

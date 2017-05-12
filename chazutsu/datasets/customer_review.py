@@ -4,6 +4,7 @@ import rarfile
 import shutil
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
+from chazutsu.datasets.framework.resource import Resource
 
 
 class CustomerReview(Dataset):
@@ -49,6 +50,9 @@ class CustomerReview(Dataset):
             return self._extract_more3(path)
         else:
             raise Exception("Directed kind {} is not supported in extraction process.".format(self.kind))
+
+    def make_resource(self, data_root):
+        return Resource(data_root, columns=["sentence-type", "polarity", "detail", "review"], target="polarity")
 
     def _extract_products5(self, path):
         dir, file_name = os.path.split(path)

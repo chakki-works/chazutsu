@@ -93,8 +93,9 @@ class TestCustomerReview(unittest.TestCase):
         os.remove(path)
     
     def test_download(self):
-        root = chazutsu.datasets.CustomerReview.more3().download(DATA_ROOT)
-        shutil.rmtree(root)
+        resource = chazutsu.datasets.CustomerReview.more3().download(DATA_ROOT)
+        self.assertTrue(len(resource.data().columns), 4)
+        shutil.rmtree(resource.root)
 
     def _download_file(self, dataset):
         url = dataset.download_url

@@ -137,8 +137,10 @@ class TestMovieReview(unittest.TestCase):
         self.assertEqual(obj, 5000)
     
     def test_download(self):
-        root = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
-        shutil.rmtree(root)
+        resource = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
+        target, data = resource.test_data(split_target=True)
+        self.assertEqual(target.shape[0], data.shape[0])
+        shutil.rmtree(resource.root)
 
     def _download_file(self, dataset):
         url = dataset.download_url

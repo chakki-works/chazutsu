@@ -4,18 +4,20 @@ import tarfile
 import shutil
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
+from chazutsu.datasets.framework.resource import Resource
 
 
 class NewsGroup20(Dataset):
 
-    def __init__(self):
+    def __init__(self, group_filter=()):
         super().__init__(
             name="20 Newsgroups",
             site_url="http://qwone.com/~jason/20Newsgroups/",
             download_url="http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz",
             description="news article and its comments that are categorized by 20 group."
             )
-
+        
+        self.group_filter = group_filter
         self._mail_pattern = re.compile("[\w|\.]+@[\w|\.]+")
 
     def extract(self, path):
@@ -31,6 +33,8 @@ class NewsGroup20(Dataset):
             for gp in os.listdir(dataset_path):
                 group_path = os.path.join(dataset_path, gp)
                 if not os.path.isdir(group_path):
+                    continue
+                if len(self.group_filter) > 0 and gp not in self.group_filter:
                     continue
 
                 self.logger.info("Extracting {} news data.".format(gp))
@@ -52,6 +56,9 @@ class NewsGroup20(Dataset):
         shutil.rmtree(work_dir)
 
         return newsgroup20_path
+
+    def make_resource(self, data_root):
+        return Resource(data_root, columns=["group", "group-category", "subject", "author", "text"], target="group")
 
     def get_category(self, group_name):
         g = group_name

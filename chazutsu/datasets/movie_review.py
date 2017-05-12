@@ -3,6 +3,7 @@ import tarfile
 import shutil
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
+from chazutsu.datasets.framework.resource import Resource
 
 
 class MovieReview(Dataset):
@@ -55,6 +56,16 @@ class MovieReview(Dataset):
             return self._extract_subjectivity(path)
         else:
             raise Exception("Directed kind {} is not supported in extraction process.".format(self.kind))
+
+    def make_resource(self, data_root):
+        if self.kind in ["polarity", "polarity_v1"]:
+            return Resource(data_root, columns=["polarity", "review"], target="polarity")
+        elif self.kind == "rating":
+            return Resource(data_root, columns=["rating", "review"], target="rating")
+        elif self.kind == "subjectivity":
+            return Resource(data_root, columns=["subjectivity", "review"], target="subjectivity")
+        else:
+            return Resource(data_root)
 
     def _extract_polarity(self, path):
         dir, file_name = os.path.split(path)

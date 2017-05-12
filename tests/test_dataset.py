@@ -77,8 +77,13 @@ class TestDataset(unittest.TestCase):
     
     def test_download(self):
         d = SampleDataset()
-        created_root = d.download(DATA_ROOT, sample_count=10)
-        shutil.rmtree(created_root)
+        resource = d.download(DATA_ROOT, sample_count=10)
+        df = resource.data()
+
+        shutil.rmtree(resource.root)
+        self.assertTrue(resource.train_file_path)
+        self.assertTrue(resource.test_file_path)
+        self.assertTrue(resource.sample_file_path)
 
     def _download_sample_file(self, file_name):
         sample_file = "https://raw.githubusercontent.com/chakki-works/chazutsu/master/README.md"

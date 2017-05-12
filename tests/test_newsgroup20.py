@@ -13,26 +13,27 @@ DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
 class TestNewsGroup20(unittest.TestCase):
 
     def test_extract(self):
-        d = chazutsu.datasets.NewsGroup20()
-        file_path = self._download_file(d)
-        news_path = d.extract(file_path)
+        r = chazutsu.datasets.NewsGroup20().download(directory=DATA_ROOT, test_size=0)
 
         try:
-            with open(news_path, encoding="utf-8") as f:
+            with open(r.path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 5:
                         print(els)
                         print(len(els))
                         raise Exception("data file is not constructed by label and text.")
+ 
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            if os.path.isfile(r.path):
+                os.remove(r.path)
             self.fail(ex)
+        
+        self.assertTrue(len(r.data().columns), 5)
 
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-        #os.remove(news_path)
+        if os.path.isfile(r.path):
+            os.remove(r.path)
+        shutil.rmtree(r.root)
 
     def test_parse(self):
         d = chazutsu.datasets.NewsGroup20()
@@ -40,17 +41,6 @@ class TestNewsGroup20(unittest.TestCase):
         self.assertEqual(subject, "Re: Political Atheists?")
         self.assertEqual(author, "Keith Allan Schneider")
         self.assertTrue(text.startswith("If I"))
-
-    def _download_file(self, dataset):
-        url = dataset.download_url
-        file_path = os.path.join(DATA_ROOT, "newsgroup20")
-        r = requests.get(url)
-
-        with open(file_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=128):
-                f.write(chunk)
-
-        return file_path
 
 
 sample_text = """

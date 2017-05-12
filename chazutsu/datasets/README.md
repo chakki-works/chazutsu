@@ -22,7 +22,7 @@ If you want to download this dataset, please direct the kind as following.
 **Dataset File format**
 
 * label (polarity, rating, subjectivity)
-* text
+* review
 
 **Papers (from official site)**
 
@@ -57,7 +57,7 @@ If you want to download this dataset, please direct as following.
   * if sentence includes multiple score(feature), take average
 * detail: (feature)_(polarity)_(attribute) ex: size_-2_u, digital zoom_+1_
   * if attributes (p, u, s, cc, cs) do not appear, attribute is blank
-* sentence
+* review
 
 **Papers (from official site)**
 
@@ -85,8 +85,8 @@ If you want to download this dataset, please user below class.
 
 **Dataset File format**
 
-* news group name
-* category name
+* group
+* group category
 * subject(Subject)
 * author(From)
 * text
