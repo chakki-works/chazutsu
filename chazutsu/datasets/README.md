@@ -107,7 +107,7 @@ If you want to download this dataset, please user below class.
 This dataset contains additional unlabeled data for unsupervised learning. You can access this data as following.
 
 ```python
-r = chazutsu.datasets.LargeMovieReview().download()
+r = chazutsu.datasets.IMDB().download()
 r.unlabeled_data()
 ```
 
