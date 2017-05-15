@@ -54,10 +54,11 @@ class TestDataset(unittest.TestCase):
         sample_file_path = self._download_sample_file("for_split.txt")
         d = SampleDataset()
         test_size = 0.3
-        train_test_path = d.train_test_split(sample_file_path, test_size=test_size)
         total_count = d.get_line_count(sample_file_path)
+        train_test_path = d.train_test_split(sample_file_path, test_size=test_size, keep_raw=False)
         test_count = d.get_line_count(train_test_path[1])
-        os.remove(sample_file_path)
+
+        self.assertFalse(os.path.exists(sample_file_path))
         for p in train_test_path:
             os.remove(p)
 
