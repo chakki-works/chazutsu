@@ -2,11 +2,13 @@ import os
 import re
 import mmap
 import random
+import math
 import zipfile
 import tarfile
 from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
+from joblib import Parallel, delayed
 from chazutsu.datasets.framework.resource import Resource
 
 
@@ -38,17 +40,24 @@ class Dataset():
             self.logger.setLevel(_level)
             self.logger.addHandler(handler)
     
-    def download(self, directory="", shuffle=True, test_size=0.3, sample_count=0, keep_raw=False):
+    def download(self, directory="", shuffle=True, test_size=0.3, sample_count=0, keep_raw=False, force=False):
         # input parameter check
         #   directory: don't make default directory in download method because can not specify current dir.
         #   test_size: have to be smaller than 1
         dir = self.check_directory(directory)
-        dataset_root = os.path.join(dir, self.name.lower().replace(" ", "_"))
+        dataset_root = os.path.join(dir, self._get_root_name())
         if not os.path.isdir(dataset_root):
             os.mkdir(dataset_root)
+        elif not force:
+            # data_root already exists and have contents
+            return self.make_resource(dataset_root)
 
         # download and save file
-        save_file_path = self.save_dataset(dataset_root)
+        save_file_path = os.path.join(dataset_root, self._get_file_name(None))
+        if not os.path.exists(save_file_path):
+            save_file_path = self.save_dataset(dataset_root)
+        else:
+            self.logger.info("Skip the downloading the file because it already exists.")
 
         # extract dataset file from saved file
         extracted_file_path = self.extract(save_file_path)
@@ -63,15 +72,10 @@ class Dataset():
                 f.writelines(lines)
 
         # split to train & test
-        train_test_path = self.train_test_split(extracted_file_path, test_size)
+        train_test_path = self.train_test_split(extracted_file_path, test_size, keep_raw)
     
         # make sample file
         sample_path = self.make_samples(extracted_file_path, sample_count)
-        
-        # remove raw file
-        if len(train_test_path) > 0 and not keep_raw:
-            if os.path.isfile(extracted_file_path):
-                os.remove(extracted_file_path)
         
         self.logger.info("Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
@@ -80,7 +84,18 @@ class Dataset():
         r = self.make_resource(dataset_root)
 
         return r
- 
+    
+    def load(self, directory=""):
+        dir = self.check_directory(directory)
+        dataset_root = os.path.join(dir, self._get_root_name())
+        if os.path.isdir(dataset_root):
+            return self.make_resource(dataset_root)
+        else:
+            return None
+    
+    def _get_root_name(self):
+        return self.name.lower().replace(" ", "_")
+
     def check_directory(self, directory):
         if os.path.isdir(directory):
             return directory
@@ -117,10 +132,10 @@ class Dataset():
         # you may unpack the file and extract data file.
         return path
     
-    def extract_file(self, path, relative_paths, remove=True):
+    def extract_file(self, path, relative_pathes, remove=True):
         # unpack the archive file and extract directed path file
         base, _ = os.path.splitext(path)
-        target = relative_paths if isinstance(relative_paths, (tuple, list)) else [relative_paths]
+        target = relative_pathes if isinstance(relative_pathes, (tuple, list)) else [relative_pathes]
 
         extracteds = []
         if zipfile.is_zipfile(path):
@@ -148,8 +163,46 @@ class Dataset():
             os.remove(path)
 
         return extracteds
+    
+    def label_by_dir(self, file_path, target_dir, dir_and_label, task_size=10):
 
-    def train_test_split(self, original_file_path, test_size):
+        label_dirs = dir_and_label.keys()
+        dirs = [d for d in os.listdir(target_dir) if os.path.isdir(os.path.join(target_dir, d)) and d in label_dirs]
+
+        write_flg = True
+        for d in dirs:
+            self.logger.info("Extracting {} directory files (labeled by {}).".format(d, dir_and_label[d]))
+            label = dir_and_label[d]
+            dir_path = os.path.join(target_dir, d)
+            pathes = [os.path.join(dir_path, f) for f in os.listdir(dir_path)]
+            pathes = [p for p in pathes if os.path.isfile(p)]
+            task_length = int(math.ceil(len(pathes) / task_size))
+            for i in tqdm(range(task_length)):
+                index = i * task_size
+                task_packet = pathes[index:(index + task_size)]
+                lines = Parallel(n_jobs=-1)(delayed(self._parallel_parser)(label, t) for t in task_packet)
+                with open(file_path, mode="w" if write_flg else "a", encoding="utf-8") as f:
+                    for ln in lines:
+                        f.write(ln)
+                write_flg = False
+    
+    @classmethod
+    def _parallel_parser(cls, label, path):
+        features = cls._file_to_features(path)
+        line = "\t".join([str(label)] + features) + "\n"
+        return line
+
+    @classmethod
+    def _file_to_features(cls, path):
+        # override this method if you want implements custome process
+        fs = []
+        with open(path, encoding="utf-8") as f:
+            lines = f.readlines()
+            lines = [ln.replace("\t", " ").strip() for ln in lines]
+            fs = [" ".join(lines)]
+        return fs
+
+    def train_test_split(self, original_file_path, test_size, keep_raw=False):
         if test_size < 0 or test_size > 1:
             self.logger.error("test_size have to be between 0 ~ 1. if you don't want to split, please set 0.")
             return []
@@ -182,6 +235,10 @@ class Dataset():
             to_base(train_test_path[0]), to_base(train_test_path[1]),
             total_count - test_count, test_count, test_count / total_count * 100)
             )
+
+        if not keep_raw:
+            os.remove(original_file_path)
+
         return train_test_path
 
     def make_samples(self, original_file_path, sample_count):
@@ -218,7 +275,7 @@ class Dataset():
 
     def _get_file_name(self, resp):
         file_name = ""
-        if "content-disposition" in resp.headers:
+        if resp and "content-disposition" in resp.headers:
             cd = resp.headers["content-disposition"]
             file_matches = re.search("filename=(.+)", cd)
             if file_matches:

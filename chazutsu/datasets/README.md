@@ -24,11 +24,12 @@ If you want to download this dataset, please direct the kind as following.
 * label (polarity, rating, subjectivity)
 * review
 
-**Papers (from official site)**
+**Citation/License**
 
-* Bo Pang, Lillian Lee, and Shivakumar Vaithyanathan, [Thumbs up? Sentiment Classification using Machine Learning Techniques](http://www.cs.cornell.edu/home/llee/papers/sentiment.home.html), Proceedings of EMNLP 2002.
-* Bo Pang and Lillian Lee, [A Sentimental Education: Sentiment Analysis Using Subjectivity Summarization Based on Minimum Cuts](A sentimental education: Sentiment analysis using subjectivity), Proceedings of ACL 2004.
-* Bo Pang and Lillian Lee, [Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales](http://www.cs.cornell.edu/home/llee/papers/pang-lee-stars.home.html), Proceedings of ACL 2005.
+* `polarity`: Bo Pang and Lillian Lee, [A Sentimental Education: Sentiment Analysis Using Subjectivity Summarization Based on Minimum Cuts](http://www.cs.cornell.edu/home/llee/papers/cutsent.home.html), Proceedings of ACL 2004.
+ * `polarity_v1`: * Bo Pang, Lillian Lee, and Shivakumar Vaithyanathan, [Thumbs up? Sentiment Classification using Machine Learning Techniques](http://www.cs.cornell.edu/home/llee/papers/sentiment.home.html), Proceedings of EMNLP 2002.
+* `rating`: Bo Pang and Lillian Lee, [Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales](http://www.cs.cornell.edu/home/llee/papers/pang-lee-stars.home.html), Proceedings of ACL 2005.
+* `subjectivity`: [A Sentimental Education: Sentiment Analysis Using Subjectivity Summarization Based on Minimum Cuts](http://www.cs.cornell.edu/home/llee/papers/cutsent.home.html), Proceedings of ACL 2004.
 
 ## [Customer Review Datasets](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets)
 
@@ -59,11 +60,11 @@ If you want to download this dataset, please direct as following.
   * if attributes (p, u, s, cc, cs) do not appear, attribute is blank
 * review
 
-**Papers (from official site)**
+**Citation/License**
 
-* Hu and Liu, KDD-2004, [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf)
-* Ding, Liu and Yu, WSDM-2008, [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf)
-* Liu et al., IJCAI-2015, [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842)
+* `CustomerReview.5products`: Minqing Hu and Bing Liu. [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf), Proceedings of KDD-2004
+* `CustomerReview.9additional`: Xiaowen Ding, Bing Liu and Philip S. Yu. [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf), Proceedings of WSDM-2008
+* `CustomerReview.3more`: Qian Liu, Zhiqiang Gao, Bing Liu and Yuanlin Zhang. [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842), Proceedings of IJCAI-2015
 
 
 ## [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
@@ -91,6 +92,33 @@ If you want to download this dataset, please user below class.
 * author(From)
 * text
 
-**Papers (from official site)**
+**Citation/License?**
 
 * [Newsweeder: Learning to filter netnews](http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.22.6286)
+
+## [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
+
+This dataset offers 25,000 train/test movie reviews that have positive/negative annotation.
+
+If you want to download this dataset, please user below class.
+
+* `IMDB`
+
+This dataset contains additional unlabeled data for unsupervised learning. You can access this data as following.
+
+```python
+r = chazutsu.datasets.LargeMovieReview().download()
+r.unlabeled_data()
+```
+
+**Dataset File format**
+
+* label: positive(=1)/negative(=0)
+* rating: 1~10 (from file name)
+* review
+
+(unsupervised only have review)
+
+**Citation/License**
+
+Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011

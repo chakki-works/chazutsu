@@ -84,6 +84,25 @@ class TestDataset(unittest.TestCase):
         self.assertTrue(resource.train_file_path)
         self.assertTrue(resource.test_file_path)
         self.assertTrue(resource.sample_file_path)
+    
+    def test_label_by_dir(self):
+        test_root = os.path.join(DATA_ROOT, "test_label")
+        if not os.path.exists(test_root):
+            os.mkdir(test_root)
+            for d in ["pos", "neg"]:
+                os.mkdir(os.path.join(test_root, d))
+                for f in ["test_" + d + "_{}.txt".format(i) for i in range(100)]:
+                    p = os.path.join(test_root, d + "/" + f)
+                    with open(p, mode="w", encoding="utf-8") as f:
+                        f.write("source {}".format(p))
+        
+        d = SampleDataset()
+        p = os.path.join(test_root, "test_label_by_dir.txt")
+        d.label_by_dir(p, test_root, {"pos": 1, "neg": 0}, task_size=10)
+
+        count = d.get_line_count(p)
+        shutil.rmtree(test_root)
+        self.assertEqual(100 * 2, count)
 
     def _download_sample_file(self, file_name):
         sample_file = "https://raw.githubusercontent.com/chakki-works/chazutsu/master/README.md"

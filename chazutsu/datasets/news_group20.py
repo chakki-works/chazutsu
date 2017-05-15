@@ -25,8 +25,9 @@ class NewsGroup20(Dataset):
         work_dir = os.path.join(dir, "tmp")
         newsgroup20_path = os.path.join(dir, "newsgroup20.txt")
 
-        with tarfile.open(path) as t:
-            t.extractall(path=work_dir)
+        if not os.path.isdir(work_dir):
+            with tarfile.open(path) as t:
+                t.extractall(path=work_dir)
 
         dataset_path = os.path.join(work_dir, "20news-18828")
         with open(newsgroup20_path, mode="wb") as f:
