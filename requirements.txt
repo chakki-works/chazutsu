@@ -1,4 +1,3 @@
-rarfile>=3.0
 requests>=2.14.2
 tqdm>=4.11.2
 pandas>=0.20.1

@@ -1,6 +1,5 @@
 import os
 import zipfile
-import rarfile
 import shutil
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
@@ -19,8 +18,8 @@ class CustomerReview(Dataset):
         
         urls = {
             "products5": "http://www.cs.uic.edu/~liub/FBS/CustomerReviewData.zip",
-            "additional9": "http://www.cs.uic.edu/~liub/FBS/Reviews-9-products.rar",
-            "more3": "http://www.cs.uic.edu/~liub/FBS/CustomerReviews-3-domains.rar",
+            "additional9": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/Reviews-9-products.zip",
+            "more3": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/CustomerReviews-3-domains.zip",
         }
 
         if kind not in urls:
@@ -101,8 +100,8 @@ class CustomerReview(Dataset):
         work_dir = os.path.join(dir, "tmp")
         additional9_path = os.path.join(dir, "additional9.txt")
 
-        with rarfile.RarFile(path) as r:
-            r.extractall(path=work_dir)
+        with zipfile.ZipFile(path) as z:
+            z.extractall(path=work_dir)
 
         review_path = os.path.join(work_dir, "Reviews-9-products")
         with open(additional9_path, mode="wb") as f:
@@ -143,10 +142,10 @@ class CustomerReview(Dataset):
         work_dir = os.path.join(dir, "tmp")
         more3_path = os.path.join(dir, "more3.txt")
 
-        with rarfile.RarFile(path) as r:
-            r.extractall(path=work_dir)
+        with zipfile.ZipFile(path) as z:
+            z.extractall(path=work_dir)
 
-        review_path = os.path.join(work_dir, "CustomerReviews -3 domains (IJCAI2015)")
+        review_path = os.path.join(work_dir, "CustomerReviews-3domains(IJCAI2015)")
         with open(more3_path, mode="wb") as f:
             for txt in os.listdir(review_path):
                 if txt == "Readme.txt":
