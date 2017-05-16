@@ -152,3 +152,40 @@ It downloads raw text file. You can tokenize it from returned object.
 
 * Apache License 2.0
 * [RECURRENT NEURAL NETWORK REGULARIZATION](https://arxiv.org/pdf/1409.2329v4.pdf)
+
+## [WikiText-2](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
+
+WikiText-2 is the language modeling dataset that is larger than PTB (over 2 times!).  
+This dataset is created from Wikipedia articles that are verified Good and Featured.
+
+If you want to download this dataset, please use below class.
+
+* `WikiText2`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it from returned object (same as PTB).
+
+**Citation/License**
+
+* Creative Commons Attribution-ShareAlike License
+* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
+
+
+## [WikiText-103](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
+
+WikiText-2 is the language modeling dataset that is larger than PTB (over 110 times!).  
+This dataset is created from Wikipedia articles that are verified Good and Featured.
+
+If you want to download this dataset, please use below class.
+
+* `WikiText103`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it from returned object (same as PTB).
+
+**Citation/License**
+
+* Creative Commons Attribution-ShareAlike License
+* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)

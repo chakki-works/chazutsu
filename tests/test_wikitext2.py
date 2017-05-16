@@ -10,26 +10,26 @@ import chazutsu.datasets
 DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
 
 
-class TestPTB(unittest.TestCase):
+class TestWikiText2(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        r = chazutsu.datasets.PTB().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.WikiText2().download(directory=DATA_ROOT)
 
     @classmethod
     def tearDownClass(cls):
-        r = chazutsu.datasets.PTB().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.WikiText2().download(directory=DATA_ROOT)
         shutil.rmtree(r.root)
 
     def test_extract(self):
-        r = chazutsu.datasets.PTB().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.WikiText2().download(directory=DATA_ROOT)
         self.assertTrue(len(r.data().columns), 1)
         self.assertTrue(r.train_file_path)
         self.assertTrue(r.test_file_path)
         self.assertTrue(r.valid_file_path)
 
     def test_tokenize(self):
-        r = chazutsu.datasets.PTB().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.WikiText2().download(directory=DATA_ROOT)
         tokenized, vocab = r.tokenize("valid")
         self.assertTrue(len(tokenized) > 0)
 

@@ -17,11 +17,11 @@ class PTB(Dataset):
             description="basic language modeling dataset that omits linguistic structure annotations."
             )
     
-    def download(self, directory="", shuffle=True, test_size=0, sample_count=0, keep_raw=False):
+    def download(self, directory="", shuffle=False, test_size=0, sample_count=0, keep_raw=False):
         if test_size != 0:
             raise Exception("This dataset is already splitted to train & test.")
-        
-        return super().download(directory, shuffle, 0, sample_count, keep_raw)
+        # in language modeling, shuffle is not needed
+        return super().download(directory, False, 0, sample_count, keep_raw)
 
     def extract(self, path):
         dir, file_name = os.path.split(path)
