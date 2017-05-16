@@ -1,7 +1,6 @@
 from setuptools import setup
 
 
-
 setup(
     name = "chazutsu",
     version = "0.4",
