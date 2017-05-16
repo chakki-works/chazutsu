@@ -50,6 +50,7 @@ class Dataset():
             os.mkdir(dataset_root)
         elif not force:
             # data_root already exists and have contents
+            self.logger.info("Read resource from the existed resource (if you want to retry, set force=True).")
             return self.make_resource(dataset_root)
 
         # download and save file

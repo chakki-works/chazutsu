@@ -62,7 +62,9 @@ class Resource():
 
         if not split_target:
             return df
-        else:
+        elif self.target and self.target in df.columns:
             target = df[self.target]
             df.drop(self.target, axis=1, inplace=True)
             return target, df
+        else:
+            return df

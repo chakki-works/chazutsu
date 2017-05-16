@@ -80,7 +80,7 @@ This dataset offers 20 newsgroups collection. Some of the categories are related
 
 For example, `alt.atheism` and `talk.religion.misc`, `comp.windows.x` and `comp.graphics` are close, `rec.sport.baseball` and `sci.crypt` is far.
 
-If you want to download this dataset, please user below class.
+If you want to download this dataset, please use below class.
 
 * `NewsGroup20`: the version that excludes duplicates and includes only "From" and "Subject" headers.
 
@@ -100,7 +100,7 @@ If you want to download this dataset, please user below class.
 
 This dataset offers 25,000 train/test movie reviews that have positive/negative annotation.
 
-If you want to download this dataset, please user below class.
+If you want to download this dataset, please use below class.
 
 * `IMDB`
 
@@ -122,3 +122,33 @@ r.unlabeled_data()
 **Citation/License**
 
 Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011
+
+## [Penn Tree Bank](https://github.com/tomsercu/lstm)
+
+The original [Penn Tree Bank](http://aclweb.org/anthology/J93-2004) has linguistic structure annotations (and it is not free).  
+So here offers the variant dataset from [tomsercu/lstm](https://github.com/tomsercu/lstm),
+that omits the annotation and splited to train/valid/test dataset.
+
+If you want to download this dataset, please use below class.
+
+* `PTB`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it from returned object.
+
+```python
+>>>import chazutsu
+>>>r = chazutsu.datasets.PTB().download()
+>>>tokenized, vocab = r.tokenize("valid")  # train, test, or valid
+>>>print(tokenized[:10])
+[647, 135, 320, 5, 468, 58, 2561, 6, 256, 2530]
+>>>rev_vocab = {v:k for k, v in vocab.items()}
+>>>print([rev_vocab[i] for i in tokenized[:10]])
+['consumers', 'may', 'want', 'to', 'move', 'their', 'telephones', 'a', 'little', 'closer']
+```
+
+**Citation/License**
+
+* Apache License 2.0
+* [RECURRENT NEURAL NETWORK REGULARIZATION](https://arxiv.org/pdf/1409.2329v4.pdf)

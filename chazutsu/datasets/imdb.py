@@ -101,14 +101,14 @@ class IMDBResource(Resource):
             sample_file_suffix)
         
         self.path = self.train_file_path
-        self.unlabeled_data_path = ""
+        self.unlabeled_file_path = ""
         for f in os.listdir(self.root):
             p = os.path.join(self.root, f)
             n, e = os.path.splitext(f)
             if n.endswith("_unlabeled"):
-                self.unlabeled_data_path = p
+                self.unlabeled_file_path = p
                 break
     
     def unlabeled_data(self):
-        df = pd.read_table(self.unlabeled_data_path, header=None, names=["review"])
+        df = pd.read_table(self.unlabeled_file_path, header=None, names=["review"])
         return df
