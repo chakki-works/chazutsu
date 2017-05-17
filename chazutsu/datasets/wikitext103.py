@@ -17,11 +17,11 @@ class WikiText103(Dataset):
             description="The dataset for language modeling that is larger than PTB (over 110 times)."
             )
     
-    def download(self, directory="", shuffle=False, test_size=0, sample_count=0, keep_raw=False):
+    def download(self, directory="", shuffle=False, test_size=0, sample_count=0, keep_raw=False, force=False):
         if test_size != 0:
             raise Exception("This dataset is already splitted to train & test.")
         
-        return super().download(directory, False, 0, sample_count, keep_raw)
+        return super().download(directory, False, 0, sample_count, keep_raw, force)
 
     def extract(self, path):
         dir, file_name = os.path.split(path)

@@ -5,6 +5,7 @@ import random
 import math
 import zipfile
 import tarfile
+import gzip
 from urllib.parse import urlparse
 import requests
 from tqdm import tqdm
@@ -159,6 +160,14 @@ class Dataset():
                                 f.write(c)
                     extracteds.append(p)
         
+        elif path.endswith(".gz"):
+            with gzip.open(path, "rb") as g:
+                p = os.path.join(os.path.dirname(path), relative_pathes[0])
+                extracteds.append(p)
+                with open(p, "wb") as f:
+                    for ln in g:
+                        f.write(ln)
+
         if remove:
             # remove downloaded raw file (zip/tar.gz etc)
             os.remove(path)

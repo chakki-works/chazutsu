@@ -66,6 +66,32 @@ If you want to download this dataset, please direct as following.
 * `CustomerReview.9additional`: Xiaowen Ding, Bing Liu and Philip S. Yu. [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf), Proceedings of WSDM-2008
 * `CustomerReview.3more`: Qian Liu, Zhiqiang Gao, Bing Liu and Yuanlin Zhang. [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842), Proceedings of IJCAI-2015
 
+## [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
+
+This dataset offers 25,000 train/test movie reviews that have positive/negative annotation.
+
+If you want to download this dataset, please use below class.
+
+* `IMDB`
+
+This dataset contains additional unlabeled data for unsupervised learning. You can access this data as following.
+
+```python
+r = chazutsu.datasets.IMDB().download()
+r.unlabeled_data()
+```
+
+**Dataset File format**
+
+* label: positive(=1)/negative(=0)
+* rating: 1~10 (from file name)
+* review
+
+(unsupervised only have review)
+
+**Citation/License**
+
+Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011
 
 ## [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
 
@@ -96,32 +122,47 @@ If you want to download this dataset, please use below class.
 
 * [Newsweeder: Learning to filter netnews](http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.22.6286)
 
-## [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
+(could not find official cite & license)
 
-This dataset offers 25,000 train/test movie reviews that have positive/negative annotation.
+## [Reuters News Courpus (RCV1-v2)](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm)
 
-If you want to download this dataset, please use below class.
+This dataset offers Reuters News articles that are categorized by topic, industries and region. It has 23,149 train and 781,265 test documents.
 
-* `IMDB`
+ If you want to download this dataset, please use below class.
 
-This dataset contains additional unlabeled data for unsupervised learning. You can access this data as following.
+* `ReutersNews.topics`: download the topic annotated data
+* `ReutersNews.industries`: download the industries annotated data
+* `ReutersNews.region`: download the region annotated data
 
-```python
-r = chazutsu.datasets.IMDB().download()
-r.unlabeled_data()
-```
+*(You have to take care that the each document has multiple labels)*
 
 **Dataset File format**
 
-* label: positive(=1)/negative(=0)
-* rating: 1~10 (from file name)
-* review
+`topics`
 
-(unsupervised only have review)
+* topic category
+* parent topic category
+* tokenized document
+
+`industries`
+
+* industries category
+* 2nd-level category (10 category expressed by 2 character)
+* tokenized document
+
+`region`
+
+* region
+* tokenized document
 
 **Citation/License**
 
-Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011
+* Lewis, D. D.; Yang, Y.; Rose, T.; and Li, F. [RCV1: A New Benchmark Collection for Text Categorization Research](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf). Journal of Machine Learning Research, 5:361-397, 2004.
+
+Because of the agreement of RCV1 CD-ROMs from Reuters, the original data should not  be reconstructed. So the dataset removes the large stop words and replace the remaining words with stems, and scramble the order of the stems.
+
+Please refer the detail on the [official site](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm).
+
 
 ## [Penn Tree Bank](https://github.com/tomsercu/lstm)
 
