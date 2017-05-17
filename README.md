@@ -95,11 +95,15 @@ Make review_polarity_samples.txt by picking 100 records from original file.
 
 ## Supported Dataset
 
-* [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
-* [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#customer-review-datasets)
-* [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#large-movie-review-datasetimdb)
-* [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#20-newsgroups)
-* [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#penn-tree-bank)
-* [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-2)
-* [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-103)
+* Sentiment Analysis
+  * [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
+  * [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#customer-review-datasets)
+  * [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#large-movie-review-datasetimdb)
+* Text classification
+  * [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#20-newsgroups)
+  * [Reuters News Courpus (RCV1-v2)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#reuters-news-courpus-rcv1-v2)
+* Language Modeling
+  * [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#penn-tree-bank)
+  * [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-2)
+  * [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-103)
 
