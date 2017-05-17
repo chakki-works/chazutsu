@@ -94,7 +94,7 @@ class ReutersNews(Dataset):
 
         self.logger.info("Make annotated file")
         pathes = []
-        for t in ["train"]: #["train", "test"]:
+        for t in ["train", "test"]:
             file_path = os.path.join(dir, "{}_{}.txt".format(self.kind, t))
             self.logger.info("Annotating the {} file".format(t))
             data_path = os.path.join(dir, "lyrl2004_tokens_{}.csv".format(t))
