@@ -2,7 +2,7 @@ import os
 import re
 import tarfile
 import shutil
-from tqdm import tqdm
+from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
@@ -39,7 +39,7 @@ class NewsGroup20(Dataset):
                     continue
 
                 self.logger.info("Extracting {} news data.".format(gp))
-                for news in tqdm(os.listdir(group_path)):
+                for news in xtqdm(os.listdir(group_path)):
                     group_name = gp
                     category_name = self.get_category(gp)
                     subject, author, text = self.parse(path=os.path.join(group_path, news))

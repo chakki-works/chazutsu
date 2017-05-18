@@ -3,7 +3,7 @@ import tarfile
 import shutil
 from collections import namedtuple
 import requests
-from tqdm import tqdm
+from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
@@ -82,7 +82,7 @@ class ReutersNews(Dataset):
         annotations = {}
         annotation_count = self.get_line_count(label_file_path)
         with open(label_file_path, "r", encoding="utf-8") as f:
-            for line in tqdm(f, total=annotation_count):
+            for line in xtqdm(f, total=annotation_count):
                 a = line.strip().split(" ")
                 cat = a[0]
                 document_id = a[1]
@@ -102,7 +102,7 @@ class ReutersNews(Dataset):
             
             with open(file_path, "w", encoding="utf-8") as f:
                 with open(data_path, "r", encoding="utf-8") as df:
-                    for line in tqdm(df, total=total_count):
+                    for line in xtqdm(df, total=total_count):
                         doc_id, words = line.strip().split(",")
                         if doc_id in annotations:
                             ann = " ".join(annotations[doc_id])
@@ -127,7 +127,7 @@ class ReutersNews(Dataset):
         with open(file_path, "wb") as f:
             chunk_size = 1024
             limit = total_size / chunk_size
-            for data in tqdm(r.iter_content(chunk_size=chunk_size), total=limit, unit="B", unit_scale=True):
+            for data in xtqdm(r.iter_content(chunk_size=chunk_size), total=limit, unit="B", unit_scale=True):
                 f.write(data)
 
         return file_path

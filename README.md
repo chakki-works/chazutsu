@@ -65,7 +65,17 @@ Name: polarity, dtype: int64
 2   idle hands  is distasteful , crass and deriva...
 ```
 
-`download` returns pandas-ready object!
+`download` returns the resource that can offer you the data as pandas object.
+
+Additionaly, you can use chazutsu on [Jupyter Notebook](http://jupyter.org/).  
+
+![on_jupyter.png](./docs/on_jupyter.png)
+
+Before you execute chazutsu on Jupyter, you have to enable widget extention by below command.
+
+```
+jupyter nbextension enable --py --sys-prefix widgetsnbextension
+```
 
 ### Split to train/test files
 

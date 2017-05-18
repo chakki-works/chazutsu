@@ -1,7 +1,7 @@
 import os
 import tarfile
 import shutil
-from tqdm import tqdm
+from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
@@ -84,7 +84,7 @@ class MovieReview(Dataset):
                 self.logger.info(
                     "Extracting {} data.".format("negative" if label == 0 else "positive")
                     )
-                for txt in tqdm(os.listdir(p)):
+                for txt in xtqdm(os.listdir(p)):
                     with open(os.path.join(p, txt), encoding="utf-8") as tf:
                         lines = [ln.strip().replace("\t", " ") for ln in tf.readlines()]
                         review= " ".join(lines)
@@ -113,7 +113,7 @@ class MovieReview(Dataset):
                     )
                 total = self.get_line_count(e)
                 with open(e, mode="r", errors="replace", encoding="utf-8") as p:
-                    for ln in tqdm(p, total=total):
+                    for ln in xtqdm(p, total=total):
                         review = ln.strip().replace("\t", " ")
                         f.write("\t".join([str(label), review]) + "\n")
         
@@ -144,7 +144,7 @@ class MovieReview(Dataset):
             self.logger.info("Extracting user {}'s rating data.".format(user))
             with open(sub_in_review_file, "r", encoding="utf-8") as sr:
                 with open(user_rating_file, "r", encoding="utf-8") as ur:
-                    for review, rating in tqdm(zip(sr, ur), total=total):
+                    for review, rating in xtqdm(zip(sr, ur), total=total):
                         _rv = review.strip().replace("\t", " ")
                         _r = rating.strip()
                         rating_file.write("\t".join([_r, _rv]) + "\n")
@@ -173,7 +173,7 @@ class MovieReview(Dataset):
                     )
                 total = self.get_line_count(e)
                 with open(e, mode="r", errors="replace", encoding="utf-8") as sb:
-                    for ln in tqdm(sb, total=total):
+                    for ln in xtqdm(sb, total=total):
                         review = ln.strip().replace("\t", " ")
                         f.write("\t".join([str(label), review]) + "\n")
         

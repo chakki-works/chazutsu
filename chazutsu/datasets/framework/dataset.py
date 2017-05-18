@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import mmap
 import random
@@ -8,7 +9,7 @@ import tarfile
 import gzip
 from urllib.parse import urlparse
 import requests
-from tqdm import tqdm
+from chazutsu.datasets.framework.xtqdm import xtqdm
 from joblib import Parallel, delayed
 from chazutsu.datasets.framework.resource import Resource
 
@@ -36,7 +37,7 @@ class Dataset():
         if not self.logger.hasHandlers():
             # logger is global object!
             _level = DEBUG if log_level is None else log_level
-            handler = StreamHandler()
+            handler = StreamHandler(sys.stdout)
             handler.setLevel(_level)
             self.logger.setLevel(_level)
             self.logger.addHandler(handler)
@@ -125,7 +126,7 @@ class Dataset():
         with open(save_file_path, "wb") as f:
             chunk_size = 1024
             limit = total_size / chunk_size
-            for data in tqdm(resp.iter_content(chunk_size=chunk_size), total=limit, unit="B", unit_scale=True):
+            for data in xtqdm(resp.iter_content(chunk_size=chunk_size), total=limit, unit="B", unit_scale=True):
                 f.write(data)
         
         return save_file_path
@@ -187,7 +188,7 @@ class Dataset():
             pathes = [os.path.join(dir_path, f) for f in os.listdir(dir_path)]
             pathes = [p for p in pathes if os.path.isfile(p)]
             task_length = int(math.ceil(len(pathes) / task_size))
-            for i in tqdm(range(task_length)):
+            for i in xtqdm(range(task_length)):
                 index = i * task_size
                 task_packet = pathes[index:(index + task_size)]
                 lines = Parallel(n_jobs=-1)(delayed(self._parallel_parser)(label, t) for t in task_packet)
@@ -232,7 +233,7 @@ class Dataset():
 
         with open(original_file_path, "rb") as f:
             i = 0
-            for line in tqdm(f, total=total_count):
+            for line in xtqdm(f, total=total_count):
                 target = test_file if i in test_targets else train_file
                 target.write(line)
                 i += 1

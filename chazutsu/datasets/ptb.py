@@ -2,7 +2,6 @@ import os
 import tarfile
 import shutil
 from collections import Counter
-from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
