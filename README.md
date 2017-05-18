@@ -9,19 +9,19 @@ For example, exploring the kinds of data, finding where to download, handling hu
 
 *[photo from Kaikado, traditional Japanese chazutsu maker](http://www.kaikado.jp/english/goods/design.html)*
 
-## Install
+# Install
 
 ```
 pip install chazutsu
 ```
 
-## How to use
+# How to use
 
 **chazutsu** supports you from data download to making file that can be read by [pandas](http://pandas.pydata.org/) etc.
 
 ![feature.png](./docs/feature.png)
 
-### Download the Datasets
+## Download the Datasets
 
 You can download the datasets by chazutsu like following.
 
@@ -42,7 +42,7 @@ Done all process! Make below files at /your/current/directory/data/moview_review
  review_polarity_train.txt
 ```
 
-**Not only the downloading the file, expand & format it. So the prepared files are ready to use!**
+**Not only the downloading the file, you can access it as pandas object!**
 
 ```
 >>>r.train_data().head(5)
@@ -65,7 +65,7 @@ Name: polarity, dtype: int64
 2   idle hands  is distasteful , crass and deriva...
 ```
 
-`download` returns the resource that can offer you the data as pandas object.
+### Use on Jupyter
 
 Additionaly, you can use chazutsu on [Jupyter Notebook](http://jupyter.org/).  
 
@@ -77,7 +77,7 @@ Before you execute chazutsu on Jupyter, you have to enable widget extention by b
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 
-### Split to train/test files
+## Split to train/test files
 
 You can split the data for training and test.  
 
@@ -89,7 +89,7 @@ File is splited to review_polarity_train.txt & review_polarity_test.txt. Each re
 ...
 ```
 
-### Make sample file
+## Make sample file
 
 You don't want to load the all dataset to watch the some lines of data!
 
@@ -103,7 +103,7 @@ Make review_polarity_samples.txt by picking 100 records from original file.
 ...
 ```
 
-## Supported Dataset
+# Supported Dataset
 
 * Sentiment Analysis
   * [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
