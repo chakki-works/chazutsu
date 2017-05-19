@@ -240,7 +240,7 @@ If you want to download this dataset, please use below class.
 
 * `Text8`
 
-In this dataset, `test_size` is treated as bytes (maga byte) for splitting the file. Default is 10Mb accordings to [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
+In this dataset, `test_size` is treated as bytes (mega byte) for splitting the file. Default is 10Mb accordings to [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
 
 **Dataset File format**
 

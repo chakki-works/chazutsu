@@ -116,4 +116,4 @@ Make review_polarity_samples.txt by picking 100 records from original file.
   * [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#penn-tree-bank)
   * [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-2)
   * [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-103)
-
+  * [text8](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#text8)
