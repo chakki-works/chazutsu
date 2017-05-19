@@ -230,3 +230,31 @@ It downloads raw text file. You can tokenize it from returned object (same as PT
 
 * Creative Commons Attribution-ShareAlike License
 * Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
+
+## [text8](http://mattmahoney.net/dc/textdata)
+
+This dataset offers cleaned enwik9. The enwik9 is the first 10^9 bytes of the English Wikipedia dump on Mar. 3, 2006.  
+The text8 is compressed version of enwik9 by discarding the outside of the <text> tag, removing some tags and so on (you can confirm these process on the official site (enwik9 -> 17compressors -> fil9 -> extra 8 compressors -> text8!).
+
+If you want to download this dataset, please use below class.
+
+* `Text8`
+
+In this dataset, `test_size` is treated as bytes (maga byte) for splitting the file. Default is 10Mb accordings to [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it from returned object.
+
+```
+r = chazutsu.datasets.Text8().download(directory=DATA_ROOT)
+tokenized, vocab = r.tokenize("test", min_word_count=5)
+```
+
+I recommend to set `min_word_count` 5, same as [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
+
+**Citation/License?**
+
+* [Large Text Compression Benchmark](http://mattmahoney.net/dc/text.html)
+* [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753)
+  * If you use this dataset, it'll be good to preprocess the data according to this paper.

@@ -77,7 +77,7 @@ class PTBResource(Resource):
     def validation_data(self):
         return self._to_pandas(self.valid_file_path, split_target)
     
-    def make_vocab(self, kind="train"):
+    def make_vocab(self, kind="train", min_word_count=0):
         if kind not in self.vocab_file_path:
             raise Exception("The data kind is not correct (select from train/valid/test).")
 
@@ -90,9 +90,11 @@ class PTBResource(Resource):
             for w in words:
                 vocab[w] += 1
         
-        _vocab = [k_v[0] for k_v in vocab.most_common()]
+        _vocab = [k_v[0] for k_v in vocab.most_common() if not k_v[1] < min_word_count]
         if "<unk>" not in _vocab:
             _vocab.append("<unk>")
+        if "<eos>" not in _vocab:
+            _vocab.append("<eos>")
 
         with open(vocab_path, "w", encoding="utf-8") as f:
             f.write("\n".join(_vocab))
@@ -117,17 +119,15 @@ class PTBResource(Resource):
             path = self.valid_file_path
         return path
 
-    def tokenize(self, kind="train", vocab_size=-1):
+    def tokenize(self, kind="train", min_word_count=-1):
         if kind not in self.vocab_file_path:
             raise Exception("The data kind is not correct (select from train/valid/test).")
         elif not self.vocab_file_path[kind]:
-            self.make_vocab(kind)
+            self.make_vocab(kind, min_word_count)
         
         vocab = {}
         with open(self.vocab_file_path[kind], encoding="utf-8") as f:
             lines = f.readlines()
-            if vocab_size > 0:
-                lines = lines[:vocab_size]
             for i, ln in enumerate(lines):
                 w = ln.strip()
                 vocab[w] = i

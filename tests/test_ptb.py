@@ -37,6 +37,36 @@ class TestPTB(unittest.TestCase):
         print(tokenized[:10])
         print([rev_vocab[i] for i in tokenized[:10]])
 
+    def test_make_vocab(self):
+        test_root = os.path.join(DATA_ROOT, "test_make_vocab")
+        if not os.path.isdir(test_root):
+            os.mkdir(test_root)
+
+        test_file = os.path.join(test_root, "make_vocab.train.txt")
+        content = ""
+        with open(test_file, mode="w", encoding="utf-8") as f:
+            content += " ".join(["apple"] * 10) + "\n"
+            content += " ".join(["banana"] * 4) + "\n"
+            content += " ".join(["cherry"] * 5) + "\n"
+            f.write(content)
+
+        from chazutsu.datasets.ptb import PTBResource
+        pr = PTBResource(test_root)
+
+        tokenized, vocab = pr.tokenize(kind="train", min_word_count=5)
+        self.assertTrue(len(vocab), 4)  # apple, cherry, <unk>, <eos>
+        for v in vocab:
+            self.assertTrue(v in ["apple", "cherry", "<unk>", "<eos>"])
+
+        unk_id = vocab["<unk>"]
+
+        rev_vocab = {v:k for k, v in vocab.items()}
+        print([rev_vocab[i] for i in tokenized])
+
+        self.assertEqual(len([t for t in tokenized if t == unk_id]), 4)
+
+        shutil.rmtree(test_root)
+
 
 if __name__ == "__main__":
     unittest.main()

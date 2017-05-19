@@ -6,3 +6,4 @@ from .reuters_news import ReutersNews
 from .ptb import PTB
 from .wikitext2 import WikiText2
 from .wikitext103 import WikiText103
+from .text8 import Text8
