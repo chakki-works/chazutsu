@@ -45,9 +45,9 @@ This dataset offers annotated product's review. The annotation is done as below:
 
 If you want to download this dataset, please direct as following.
 
-* `CustomerReview.5products`: download the dataset that annotated to 5 products
-* `CustomerReview.9additional`: download the dataset that annotated to 9 additional products
-* `CustomerReview.3more`: download the dataset that annotated to 3 more products
+* `CustomerReview.products5`: download the dataset that annotated to 5 products
+* `CustomerReview.additional9`: download the dataset that annotated to 9 additional products
+* `CustomerReview.more3`: download the dataset that annotated to 3 more products
 
 (If you want to use `9additional` or `3more`, [you have to intall `unrar` or `bsdtar` to unpack rarfile](https://github.com/markokr/rarfile/blob/master/README.rst))
 
