@@ -1,73 +1,81 @@
 # chazutsu
 
-Do you have trouble with gathering the data for natural language processing?  
-For example, exploring the kinds of data, finding where to download, handling huge size and parsing its data (and more!).
-
-**chazutsu** helps you to fighting above problems.
-
-<img src="https://github.com/chakki-works/chazutsu/raw/master/docs/chazutsu.png" width="50">
-
+![chazutsu_top.PNG](./docs/chazutsu_top.PNG)
 *[photo from Kaikado, traditional Japanese chazutsu maker](http://www.kaikado.jp/english/goods/design.html)*
 
-# Install
+Do you have trouble with finding & getting the  dataset for natural language processing?  
 
-```
-pip install chazutsu
-```
+For example
 
-# How to use
+* exploring the dataset by googling
+* arrange the data for the model training 
+* tokenize the data then make vocabulary, convert to ids... :confounded:
 
-**chazutsu** supports you from data download to making file that can be read by [pandas](http://pandas.pydata.org/) etc.
+Now **chazutsu** helps you from above problems.
 
-![feature.png](./docs/feature.png)
 
-## Download the Datasets
+# How it works
 
-You can download the datasets by chazutsu like following.
+![chazutsu_process1.png](./docs/chazutsu_process1.png)
+
+**chazutsu** offers you not only downloading the dataest, but also shuffle, split, pick samples from it.
 
 ```py
->>>import chazutsu
->>>chazutsu.datasets.MovieReview.polarity().show()
-About Moview Review Data
-movie review data that is annotated by 3 kinds of label (polarity, subjective rating, subjectivity).
-see also: http://www.cs.cornell.edu/people/pabo/movie-review-data/
-
->>>r = chazutsu.datasets.MovieReview.polarity().download()
+>>> import chazutsu
+>>> r = chazutsu.datasets.MovieReview.polarity(shuffle=True, test_size=0.3, sample_count=100).download()
 Make directory for downloading the file to /your/current/directory
 Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
 The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
 ...
+File is splited to review_polarity_train.txt & review_polarity_test.txt. Each records are 1400 & 600 (test_size=30.00%).
+...
+Make review_polarity_samples.txt by picking 100 records from original file.
+...
 Done all process! Make below files at /your/current/directory/data/moview_review_data
  review_polarity_test.txt
  review_polarity_train.txt
-```
 
-**Not only the downloading the file, you can access it as pandas object!**
-
-```
->>>r.train_data().head(5)
+>>> r.train_data().head(5)
    polarity                                             review
 0         0  plot : a little boy born in east germany ( nam...
 1         0  when i arrived in paris in june , 1992 , i was...
 2         0   idle hands  is distasteful , crass and deriva...
 3         0  phaedra cinema , the distributor of such never...
 4         0  one-sided " doom and gloom " documentary about...
->>> target, data = r.train_data(split_target=True)
->>> target.head(3)
-0    0
-1    0
-2    0
-Name: polarity, dtype: int64
->>> data.head(3)
-                                              review
-0  plot : a little boy born in east germany ( nam...
-1  when i arrived in paris in june , 1992 , i was...
-2   idle hands  is distasteful , crass and deriva...
 ```
+
+* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets)
+* You can access the dataset from [pandas](http://pandas.pydata.org/) DataFrame
+* You can use `sample_count` parameter to watch the data without opening the huge size of file
+
+When dealing with the text data, tokenization and word-to-id process is fundamental process. **chazutsu** supports it.
+
+![chazutsu_process2.png](./docs/chazutsu_process2.png)
+
+```py
+>>> import chazutsu
+>>> r = chazutsu.datasets.MovieReview.subjectivity().download()
+>>> r_idx = r.to_indexed().make_vocab(min_word_count=3)
+>>> r_idx.train_data().head(3)
+   subjectivity                                             review
+0             0  [1840, 7, 516, 26, 566, 4, 25, 6997, 64, 8, 7,...
+1             0  [11, 1, 44, 1028, 20, 0, 7309, 2924, 3, 725, 8...
+2             1  [34, 436, 1, 918, 2, 7291, 45, 235, 0, 129, 58...
+>>> r_idx.train_data()["review"].map(r_idx.ids_to_words).head(3)
+0    [cho, s, fans, are, sure, to, be, entertained,...
+1    [with, a, story, inspired, by, the, tumultuous...
+2    [they, lead, a, boring, and, unattractive, lif...
+Name: review, dtype: object
+```
+
+* You can use `to_indexed` to make indexed resource
+* You can set various parameters and custome tokenizer to execute `make_vocab`.
+
+## Additional Feature
 
 ### Use on Jupyter
 
-Additionaly, you can use chazutsu on [Jupyter Notebook](http://jupyter.org/).  
+You can use chazutsu on [Jupyter Notebook](http://jupyter.org/).  
 
 ![on_jupyter.png](./docs/on_jupyter.png)
 
@@ -77,30 +85,10 @@ Before you execute chazutsu on Jupyter, you have to enable widget extention by b
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 
-## Split to train/test files
+# Install
 
-You can split the data for training and test.  
-
-```py
->>>import chazutsu
->>>chazutsu.datasets.MovieReview.polarity().download(test_size=0.3)
-...
-File is splited to review_polarity_train.txt & review_polarity_test.txt. Each records are 1400 & 600 (test_size=30.00%).
-...
 ```
-
-## Make sample file
-
-You don't want to load the all dataset to watch the some lines of data!
-
-If you direct the `sample_count`, you can get the file that is sampled from dataset.
-
-```py
->>>import chazutsu
->>>chazutsu.datasets.MovieReview.polarity().download(sample_count=100)
-...
-Make review_polarity_samples.txt by picking 100 records from original file.
-...
+pip install chazutsu
 ```
 
 # Supported Dataset
