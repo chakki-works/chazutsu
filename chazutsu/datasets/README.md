@@ -45,11 +45,9 @@ This dataset offers annotated product's review. The annotation is done as below:
 
 If you want to download this dataset, please direct as following.
 
-* `CustomerReview.5products`: download the dataset that annotated to 5 products
-* `CustomerReview.9additional`: download the dataset that annotated to 9 additional products
-* `CustomerReview.3more`: download the dataset that annotated to 3 more products
-
-(If you want to use `9additional` or `3more`, [you have to intall `unrar` or `bsdtar` to unpack rarfile](https://github.com/markokr/rarfile/blob/master/README.rst))
+* `CustomerReview.products5`: download the dataset that annotated to 5 products
+* `CustomerReview.additional9`: download the dataset that annotated to 9 additional products
+* `CustomerReview.more3`: download the dataset that annotated to 3 more products
 
 **Dataset File format**
 
@@ -62,9 +60,9 @@ If you want to download this dataset, please direct as following.
 
 **Citation/License**
 
-* `CustomerReview.5products`: Minqing Hu and Bing Liu. [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf), Proceedings of KDD-2004
-* `CustomerReview.9additional`: Xiaowen Ding, Bing Liu and Philip S. Yu. [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf), Proceedings of WSDM-2008
-* `CustomerReview.3more`: Qian Liu, Zhiqiang Gao, Bing Liu and Yuanlin Zhang. [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842), Proceedings of IJCAI-2015
+* `CustomerReview.products5`: Minqing Hu and Bing Liu. [Mining and Summarizing Customer Reviews](https://www.cs.uic.edu/~liub/publications/kdd04-revSummary.pdf), Proceedings of KDD-2004
+* `CustomerReview.additional9`: Xiaowen Ding, Bing Liu and Philip S. Yu. [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf), Proceedings of WSDM-2008
+* `CustomerReview.more3`: Qian Liu, Zhiqiang Gao, Bing Liu and Yuanlin Zhang. [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842), Proceedings of IJCAI-2015
 
 ## [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
 
