@@ -5,7 +5,7 @@
 
 Do you have trouble with finding & getting the  dataset for natural language processing?  
 
-For example
+For example
 
 * exploring the dataset by googling
 * arrange the data for the model training 
@@ -44,9 +44,9 @@ Done all process! Make below files at /your/current/directory/data/moview_review
 4         0  one-sided " doom and gloom " documentary about...
 ```
 
-* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets)
-* You can access the dataset from [pandas](http://pandas.pydata.org/) DataFrame
+* You can access the dataset from [pandas](http://pandas.pydata.org/) DataFrame (Of course you can read the file from its path)
 * You can use `sample_count` parameter to watch the data without opening the huge size of file
+* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets)
 
 When dealing with the text data, tokenization and word-to-id process is fundamental process. **chazutsu** supports it.
 
