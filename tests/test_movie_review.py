@@ -140,6 +140,15 @@ class TestMovieReview(unittest.TestCase):
         resource = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
         target, data = resource.test_data(split_target=True)
         self.assertEqual(target.shape[0], data.shape[0])
+
+        resource_idx = resource.to_indexed().make_vocab(min_word_count=3)
+        train_idx = resource_idx.test_data()
+        print(">indexed data")
+        print(train_idx.head(3))
+
+        print(data.head(3))
+        print(train_idx["review"].map(resource_idx.ids_to_words).head(3))
+
         shutil.rmtree(resource.root)
 
     def _download_file(self, dataset):

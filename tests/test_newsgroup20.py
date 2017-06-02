@@ -16,7 +16,7 @@ class TestNewsGroup20(unittest.TestCase):
         r = chazutsu.datasets.NewsGroup20().download(directory=DATA_ROOT, test_size=0)
 
         try:
-            with open(r.path, encoding="utf-8") as f:
+            with open(r.data_file_path, encoding="utf-8") as f:
                 for ln in f:
                     els = ln.split("\t")
                     if len(els) != 5:
@@ -25,14 +25,14 @@ class TestNewsGroup20(unittest.TestCase):
                         raise Exception("data file is not constructed by label and text.")
  
         except Exception as ex:
-            if os.path.isfile(r.path):
-                os.remove(r.path)
+            if os.path.isfile(r.data_file_path):
+                os.remove(r.data_file_path)
             self.fail(ex)
         
         self.assertTrue(len(r.data().columns), 5)
 
-        if os.path.isfile(r.path):
-            os.remove(r.path)
+        if os.path.isfile(r.data_file_path):
+            os.remove(r.data_file_path)
         shutil.rmtree(r.root)
 
     def test_parse(self):

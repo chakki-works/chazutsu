@@ -79,7 +79,7 @@ class Dataset():
 
         # split to train & test
         train_test_path = self.train_test_split(extracted_file_path, test_size, keep_raw)
-            
+        
         self.logger.info("Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
             self.logger.info(" " + f)

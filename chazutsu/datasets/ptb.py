@@ -34,111 +34,13 @@ class PTB(Dataset):
         return train_file_path
     
     def make_resource(self, data_root):
-        return PTBResource(data_root)    
-
-
-class PTBResource(Resource):
-
-    def __init__(self,
-        root,
-        train_file_suffix=".train",
-        test_file_suffix=".test",
-        sample_file_suffix="_samples"):
-
-        super().__init__(
-            root, 
+        return Resource(
+            data_root,
             ["sentence"],
-            "",
-            train_file_suffix, 
-            test_file_suffix, 
-            sample_file_suffix)
-        
-        self.valid_file_path = ""
-        self.vocab_file_path = {
-            "train": "",
-            "valid": "",
-            "test": ""
-        }
-
-        self.path = self.train_file_path
-        for f in os.listdir(self.root):
-            p = os.path.join(self.root, f)
-            n, e = os.path.splitext(f)
-            if n.endswith(".valid"):
-                self.valid_file_path = p
-            if n.endswith(".vocab"):
-                if "train" in n:
-                    self.self.vocab_file_path["train"] = p
-                elif "valid" in n:
-                    self.self.vocab_file_path["valid"] = p
-                elif "test" in n:
-                    self.self.vocab_file_path["test"] = p
-    
-    def validation_data(self):
-        return self._to_pandas(self.valid_file_path, split_target)
-    
-    def make_vocab(self, kind="train", min_word_count=0):
-        if kind not in self.vocab_file_path:
-            raise Exception("The data kind is not correct (select from train/valid/test).")
-
-        path = self.get_file_path(kind)
-        dir, file_name = os.path.split(path)
-        vocab_path = os.path.join(dir, kind + ".vocab")
-
-        vocab = Counter()
-        for words in self._read_data_file(path):
-            for w in words:
-                vocab[w] += 1
-        
-        _vocab = [k_v[0] for k_v in vocab.most_common() if not k_v[1] < min_word_count]
-        if "<unk>" not in _vocab:
-            _vocab.append("<unk>")
-        if "<eos>" not in _vocab:
-            _vocab.append("<eos>")
-
-        with open(vocab_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(_vocab))
-        self.vocab_file_path[kind] = vocab_path
-    
-    def _read_data_file(self, path):
-        with open(path, encoding="utf-8") as f:
-            for line in f:
-                ln = line.strip()
-                if ln:
-                    words = ln.split()
-                    words.append("<eos>")
-                    yield words
-
-    def get_file_path(self, kind):
-        path = ""
-        if kind == "train":
-            path = self.train_file_path
-        elif kind == "test":
-            path = self.test_file_path
-        elif kind == "valid":
-            path = self.valid_file_path
-        return path
-
-    def tokenize(self, kind="train", min_word_count=-1):
-        if kind not in self.vocab_file_path:
-            raise Exception("The data kind is not correct (select from train/valid/test).")
-        elif not self.vocab_file_path[kind]:
-            self.make_vocab(kind, min_word_count)
-        
-        vocab = {}
-        with open(self.vocab_file_path[kind], encoding="utf-8") as f:
-            lines = f.readlines()
-            for i, ln in enumerate(lines):
-                w = ln.strip()
-                vocab[w] = i
-
-        path = self.get_file_path(kind)
-        tokenized = []
-        for words in self._read_data_file(path):
-            for w in words:
-                if w in vocab:
-                    tokenized.append(vocab[w])
-                else:
-                    tokenized.append(vocab["<unk>"])
-
-        return tokenized, vocab
+            pattern={
+                "train": ".train",
+                "test": ".test",
+                "valid": ".valid",
+                "samples": "_samples"
+            }
+        )

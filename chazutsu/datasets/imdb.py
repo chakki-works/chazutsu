@@ -88,27 +88,27 @@ class IMDBResource(Resource):
 
     def __init__(self, 
         root,
-        train_file_suffix="_train",
-        test_file_suffix="_test",
-        sample_file_suffix="_samples"):
+        columns=None,
+        target="",
+        separator="\t",
+        pattern=()):
 
         super().__init__(
             root, 
             ["polarity", "rating", "review"],
             "polarity",
-            train_file_suffix, 
-            test_file_suffix, 
-            sample_file_suffix)
-        
-        self.path = self.train_file_path
-        self.unlabeled_file_path = ""
-        for f in os.listdir(self.root):
-            p = os.path.join(self.root, f)
-            n, e = os.path.splitext(f)
-            if n.endswith("_unlabeled"):
-                self.unlabeled_file_path = p
-                break
+            separator,
+            {
+                "train": "_train",
+                "test": "_test",
+                "valid": "_valid",
+                "unlabeled": "_unlabeled",
+                "sample": "_samples"
+            })
     
-    def unlabeled_data(self):
-        df = pd.read_table(self.unlabeled_file_path, header=None, names=["review"])
-        return df
+    @property
+    def unlabeled_file_path(self):
+        return self._get_prop("unlabeled")
+
+    def unlabeled_data(self, split_target=False):
+        return self._get_data("unlabeled", split_target)

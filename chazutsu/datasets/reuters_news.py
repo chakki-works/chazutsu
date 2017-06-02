@@ -154,15 +154,14 @@ class ReutersNewsResource(Resource):
         super().__init__(
             root, 
             columns,
-            target,
-            "_train", 
-            "_test", 
-            "_samples")
-
-        self.train_file_path = os.path.join(self.root, "{}_train.txt".format(kind))
-        self.test_file_path = os.path.join(self.root, "{}_test.txt".format(kind))
-        self.sample_file_path = os.path.join(self.root, "{}_train_samples.txt".format(kind))
+            target)
         
+        self._resource = {
+            "data": os.path.join(self.root, "{}_train.txt".format(kind)),
+            "train": os.path.join(self.root, "{}_train.txt".format(kind)),
+            "test": os.path.join(self.root, "{}_test.txt".format(kind)),
+            "sample": os.path.join(self.root, "{}_train_samples.txt".format(kind))
+        }
         self.descs = self.read_descriptions(self.root, kind)
 
     @classmethod

@@ -28,12 +28,11 @@ class TestText8(unittest.TestCase):
 
     def test_tokenize(self):
         r = chazutsu.datasets.Text8().download(directory=DATA_ROOT)
-        tokenized, vocab = r.tokenize("test", min_word_count=5)
-        self.assertTrue(len(tokenized) > 0)
+        r_id = r.to_indexed().make_vocab(min_word_count=5)
 
-        rev_vocab = {v:k for k, v in vocab.items()}
-        print(tokenized[:10])
-        print([rev_vocab[i] for i in tokenized[:10]])
+        train_ids = r_id.train_data()
+        print(train_ids.head(5))
+        print(train_ids["sentence"].map(r_id.ids_to_words).head(5))
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ import tarfile
 import shutil
 from collections import Counter
 from chazutsu.datasets.framework.dataset import Dataset
-from chazutsu.datasets.ptb import PTBResource
+from chazutsu.datasets.framework.resource import Resource
 
 
 class WikiText103(Dataset):
@@ -38,4 +38,13 @@ class WikiText103(Dataset):
         return train_file_path
     
     def make_resource(self, data_root):
-        return PTBResource(data_root)    
+        return Resource(
+            data_root,
+            ["sentence"],
+            pattern={
+                "train": ".train",
+                "test": ".test",
+                "valid": ".valid",
+                "samples": "_samples"
+            }
+        )
