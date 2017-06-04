@@ -56,11 +56,7 @@ class Dataset():
             return self.make_resource(dataset_root)
 
         # download and save file
-        save_file_path = os.path.join(dataset_root, self._get_file_name(None))
-        if not os.path.exists(save_file_path):
-            save_file_path = self.save_dataset(dataset_root)
-        else:
-            self.logger.info("Skip the downloading the file because it already exists.")
+        save_file_path = self.save_dataset(dataset_root)
 
         # extract dataset file from saved file
         extracted_file_path = self.extract(save_file_path)
@@ -111,6 +107,11 @@ class Dataset():
             return data_dir
 
     def save_dataset(self, dataset_root):
+        save_file_path = os.path.join(dataset_root, self._get_file_name(None))
+        if os.path.exists(save_file_path):
+            self.logger.info("Skip the downloading the file because it already exists.")
+            return save_file_path
+
         # download and save it as raw file
         self.logger.info("Begin downloading the {} dataset from {}.".format(self.name, self.download_url))
         resp = requests.get(self.download_url, stream=True)

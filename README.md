@@ -97,6 +97,8 @@ pip install chazutsu
   * [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
   * [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#customer-review-datasets)
   * [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#large-movie-review-datasetimdb)
+* Textual entailment
+  * [The Multi-Genre Natural Language Inference (MultiNLI)]()
 * Text classification
   * [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#20-newsgroups)
   * [Reuters News Courpus (RCV1-v2)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#reuters-news-courpus-rcv1-v2)
