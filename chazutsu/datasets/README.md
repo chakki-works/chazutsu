@@ -105,8 +105,9 @@ There are two evaluation type in this task, in-domain(`matched`) and cross-domai
 of train dataset is different from `dev`/`test`.  
 The `test` data of this dataset is unlabeled (it is for submission). You can use `dev` to evaluate your model.  
 
-* [matched submission](https://inclass.kaggle.com/c/multinli-matched-evaluation/data?multinli_0.9_test_matched_unlabeled.jsonl)
-* [mismatched submission](https://inclass.kaggle.com/c/multinli-mismatched-evaluation/data?multinli_0.9_test_mismatched_unlabeled.jsonl)
+* [The RepEval 2017 Shared Task](https://repeval2017.github.io/shared/)
+  * [matched submission](https://inclass.kaggle.com/c/multinli-matched-evaluation/data?multinli_0.9_test_matched_unlabeled.jsonl)
+  * [mismatched submission](https://inclass.kaggle.com/c/multinli-mismatched-evaluation/data?multinli_0.9_test_mismatched_unlabeled.jsonl)
 
 **Dataset File format**
 
