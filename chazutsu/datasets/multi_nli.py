@@ -42,11 +42,11 @@ class MultiNLI(Dataset):
         return super().download(directory, shuffle, 0, sample_count, keep_raw, force)
 
     @classmethod
-    def matched(full=False):
+    def matched(cls, full=False):
         return MultiNLI(True, full)
 
     @classmethod
-    def mismatched(full=False):
+    def mismatched(cls, full=False):
         return MultiNLI(False, full)
 
     def extract(self, path):
