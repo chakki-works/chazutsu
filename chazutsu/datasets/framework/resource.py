@@ -144,6 +144,7 @@ class IndexedResource(Resource):
 
     def make_vocab(self, 
         tokenizer=None, 
+        vocab_size=-1,
         min_word_count=0, 
         end_of_sentence="", 
         unknown="<unk>"):
@@ -163,7 +164,7 @@ class IndexedResource(Resource):
         column_indexes = [i for i, c in enumerate(self.columns) if c in self.vocab_columns]
 
         if len(paths) > 0:
-            self.vocab.make(paths, min_word_count, column_indexes, self.separator)
+            self.vocab.make(paths, vocab_size, min_word_count, column_indexes, self.separator)
         
         return self
 

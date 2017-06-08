@@ -39,5 +39,12 @@ class TestVocabulary(unittest.TestCase):
 
         os.remove(vocab._vocab_file_path)
 
+    def test_vocab_size(self):
+        vocab = Vocabulary(DATA_ROOT, "test_vocab", end_of_sentence="<eos>")
+        vocab.make(self.TEST_FILE, vocab_size=3)
+        self.assertEqual(len(vocab._vocab), 3 + 1)  # 3 + unk
+        os.remove(vocab._vocab_file_path)
+
+
 if __name__ == "__main__":
     unittest.main()

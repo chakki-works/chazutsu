@@ -37,7 +37,7 @@ class Vocabulary():
     def has_vocab(self):
         return os.path.exists(self._vocab_file_path)
 
-    def make(self, path_or_paths, min_word_count=0, target_column_indexes=(), separator="\t"):
+    def make(self, path_or_paths, vocab_size=-1, min_word_count=0, target_column_indexes=(), separator="\t"):
         vocab = Counter()
         paths = path_or_paths
         if isinstance(paths, str):
@@ -51,6 +51,9 @@ class Vocabulary():
                     vocab[w] += 1
         
         _vocab = [k_v[0] for k_v in vocab.most_common() if not k_v[1] < min_word_count]
+        if vocab_size > 0:
+            _vocab = _vocab[:vocab_size]
+
         if self.unknown and self.unknown not in _vocab:
             _vocab.append(self.unknown)
         if self.end_of_sentence and self.end_of_sentence not in _vocab:
