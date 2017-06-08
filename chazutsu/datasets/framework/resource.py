@@ -147,7 +147,12 @@ class IndexedResource(Resource):
         vocab_size=-1,
         min_word_count=0, 
         end_of_sentence="", 
-        unknown="<unk>"):
+        unknown="<unk>",
+        reserved_words=(),
+        force=False):
+        
+        if self.vocab.has_vocab() and not force:
+            return self
 
         if tokenizer is not None:
             self.vocab.tokenizer = tokenizer
@@ -155,7 +160,7 @@ class IndexedResource(Resource):
             self.vocab.end_of_sentence = end_of_sentence
         if unknown:
             self.vocab.unknown = unknown
-        
+
         paths = []
         for kind in self._original_resource:
             p = self._original_resource[kind]
@@ -164,7 +169,7 @@ class IndexedResource(Resource):
         column_indexes = [i for i, c in enumerate(self.columns) if c in self.vocab_columns]
 
         if len(paths) > 0:
-            self.vocab.make(paths, vocab_size, min_word_count, column_indexes, self.separator)
+            self.vocab.make(paths, vocab_size, min_word_count, column_indexes, self.separator, reserved_words)
         
         return self
 
@@ -187,6 +192,9 @@ class IndexedResource(Resource):
 
     def ids_to_words(self, ids):
         return self.vocab.ids_to_words(ids)
+
+    def ids_to_one_hots(self, ids):
+        return self.vocab.ids_to_one_hots(ids)
 
     def _to_pandas(self, path, split_target):
         if not self.vocab.has_vocab():

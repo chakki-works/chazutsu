@@ -41,10 +41,17 @@ class TestVocabulary(unittest.TestCase):
 
     def test_vocab_size(self):
         vocab = Vocabulary(DATA_ROOT, "test_vocab", end_of_sentence="<eos>")
-        vocab.make(self.TEST_FILE, vocab_size=3)
-        self.assertEqual(len(vocab._vocab), 3 + 1)  # 3 + unk
+        vocab.make(self.TEST_FILE, vocab_size=4)
+        self.assertEqual(len(vocab._vocab), 4)
         os.remove(vocab._vocab_file_path)
-
+    
+    def test_to_one_hots(self):
+        vocab = Vocabulary(DATA_ROOT, "test_vocab", end_of_sentence="<eos>")
+        vocab.make(self.TEST_FILE, vocab_size=5)
+        one_hots = vocab.ids_to_one_hots(vocab.str_to_ids("apple so sweet"))
+        print(one_hots)
+        self.assertEqual(one_hots.shape, (3, 5))
+        os.remove(vocab._vocab_file_path)
 
 if __name__ == "__main__":
     unittest.main()

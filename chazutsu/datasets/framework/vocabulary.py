@@ -1,6 +1,7 @@
 import os
 import sys
 import mmap
+import numpy as np
 from collections import Counter
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.tokenizer import Tokenizer
@@ -37,7 +38,7 @@ class Vocabulary():
     def has_vocab(self):
         return os.path.exists(self._vocab_file_path)
 
-    def make(self, path_or_paths, vocab_size=-1, min_word_count=0, target_column_indexes=(), separator="\t"):
+    def make(self, path_or_paths, vocab_size=-1, min_word_count=0, target_column_indexes=(), separator="\t", reserved_words=()):
         vocab = Counter()
         paths = path_or_paths
         if isinstance(paths, str):
@@ -51,13 +52,16 @@ class Vocabulary():
                     vocab[w] += 1
         
         _vocab = [k_v[0] for k_v in vocab.most_common() if not k_v[1] < min_word_count]
+        if self.unknown and self.unknown not in _vocab:
+            _vocab.insert(0, self.unknown)
+        if self.end_of_sentence and self.end_of_sentence not in _vocab:
+            _vocabinsert(0, self.end_of_sentence)
+        if len(reserved_words) > 0:
+            for w in reserved_words:
+                _vocab.insert(0, w)
+
         if vocab_size > 0:
             _vocab = _vocab[:vocab_size]
-
-        if self.unknown and self.unknown not in _vocab:
-            _vocab.append(self.unknown)
-        if self.end_of_sentence and self.end_of_sentence not in _vocab:
-            _vocab.append(self.end_of_sentence)
 
         self.logger.info("The vocabulary count is {}. You can see it in {}.".format(
             len(_vocab), self._vocab_file_path
@@ -120,3 +124,16 @@ class Vocabulary():
 
         words = [self.__rev_vocab[i] for i in ids]
         return words
+
+    def ids_to_one_hots(self, ids):
+        if len(self._vocab) == 0:
+            self.load()
+        
+        if len(self.__rev_vocab) == 0:
+            self.__rev_vocab = {v:k for k, v in self._vocab.items()}
+        
+        one_hots = np.zeros((len(ids), len(self._vocab)))
+        for i, _id in enumerate(ids):
+            one_hots[i][_id] = 1
+        return one_hots
+
