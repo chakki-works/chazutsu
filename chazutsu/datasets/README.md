@@ -91,6 +91,55 @@ r.unlabeled_data()
 
 Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011
 
+## [The Multi-Genre Natural Language Inference (MultiNLI)](http://www.nyu.edu/projects/bowman/multinli/)
+
+This dataset offers 433k sentence pairs that have textual entailment annotation. And there are multiple genres like Fiction, Letters,
+Telephone Speech, and so on.
+
+If you want to download this dataset, please use below class.
+
+* `MultiNLI.matched`
+* `MultiNLI.mismatched`
+
+There are two evaluation type in this task, in-domain(`matched`) and cross-domain(`mismatched`). The cross-domain means the domain
+of train dataset is different from `dev`/`test`.  
+The `test` data of this dataset is unlabeled (it is for submission). You can use `dev` to evaluate your model.  
+
+* [The RepEval 2017 Shared Task](https://repeval2017.github.io/shared/)
+  * [matched submission](https://inclass.kaggle.com/c/multinli-matched-evaluation/data?multinli_0.9_test_matched_unlabeled.jsonl)
+  * [mismatched submission](https://inclass.kaggle.com/c/multinli-mismatched-evaluation/data?multinli_0.9_test_mismatched_unlabeled.jsonl)
+
+**Dataset File format**
+
+* label
+  * entailment: 0
+  * neutral: 1
+  * contradiction: 2
+  * hidden: 0
+* (annotator_labels)
+* (pairID)
+* genre
+  * telephone: transcriptions of two-sided, conversations
+  * travel: discussion between travel guide
+  * government: reports, speeches, letters, and press releases from public domain government websites
+  * fiction: corpus from eight modern works of short to mid-length fiction stories
+  * slate: articles on popular culture taken from the archives of Slate Magazine(1996–2000).
+  * nineeleven: report on the 9.11 terrorist attacks 
+  * letters:  letters promoting fundraising for non-profit organizations
+  * oup:  five non-fiction works published by Oxford University Press
+  * verbatim: articles from a quarterly magazine containing short posts about language and linguistics for non-specialists
+* sentence1
+* sentence2
+* (sentence1_parse)
+* (sentence2_parse)
+
+`telephone` ~ `slate` is `match` genre, `nineeleven` ~ `verbatim` is `mismatch` genre.
+If you set the `full=False`, item enclosed in parentheses is excluded.
+
+**Citation/License**
+
+Adina Williams, Nikita Nangia, Samuel R. Bowman. [A Broad-Coverage Challenge Corpus for Sentence Understanding through Inference](https://arxiv.org/abs/1704.05426), EMNLP 2017
+
 ## [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
 
 This dataset offers 20 newsgroups collection. Some of the categories are related, so these partitioned by 6 group.
@@ -174,18 +223,24 @@ If you want to download this dataset, please use below class.
 
 **Dataset File format**
 
-It downloads raw text file. You can tokenize it from returned object.
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
 
-```python
->>>import chazutsu
->>>r = chazutsu.datasets.PTB().download()
->>>tokenized, vocab = r.tokenize("valid")  # train, test, or valid
->>>print(tokenized[:10])
-[647, 135, 320, 5, 468, 58, 2561, 6, 256, 2530]
->>>rev_vocab = {v:k for k, v in vocab.items()}
->>>print([rev_vocab[i] for i in tokenized[:10]])
-['consumers', 'may', 'want', 'to', 'move', 'their', 'telephones', 'a', 'little', 'closer']
+```py
+>>> import chazutsu
+>>> r = chazutsu.datasets.PTB().download()
+>>> r_idx = r.to_indexed().make_vocab(min_word_count=5)
+>>> r_idx.train_data().head(3)
+                                            sentence
+0  [6630, 6285, 8065, 8641, 2376, 8642, 7059, 864...
+1  [9161, 1, 2, 74, 400, 34, 2148, 0, 145, 18, 5,...
+2  [22, 1, 12, 141, 3, 1, 27, 2506, 0, 2976, 1600...
+>>> r_idx.train_data()["sentence"].map(r_idx.ids_to_words).head(3)
+0    [aer, banknote, berlitz, calloway, centrust, c...
+1    [pierre, unk, N, years, old, will, join, the, ...
+2    [mr, unk, is, chairman, of, unk, n, v, the, du...
+Name: sentence, dtype: object
 ```
+
 
 **Citation/License**
 
@@ -203,7 +258,7 @@ If you want to download this dataset, please use below class.
 
 **Dataset File format**
 
-It downloads raw text file. You can tokenize it from returned object (same as PTB).
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
 
 **Citation/License**
 
@@ -222,7 +277,7 @@ If you want to download this dataset, please use below class.
 
 **Dataset File format**
 
-It downloads raw text file. You can tokenize it from returned object (same as PTB).
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
 
 **Citation/License**
 
@@ -242,13 +297,7 @@ In this dataset, `test_size` is treated as bytes (mega byte) for splitting the f
 
 **Dataset File format**
 
-It downloads raw text file. You can tokenize it from returned object.
-
-```
-r = chazutsu.datasets.Text8().download(directory=DATA_ROOT)
-tokenized, vocab = r.tokenize("test", min_word_count=5)
-```
-
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.  
 I recommend to set `min_word_count` 5, same as [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
 
 **Citation/License?**
