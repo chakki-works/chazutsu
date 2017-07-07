@@ -58,59 +58,87 @@ class Resource():
 
     @property
     def data_file_path(self):
-        return self._get_prop("data")
+        return self._get_path("data")
 
     @property
     def train_file_path(self):
-        return self._get_prop("train")
+        return self._get_path("train")
 
     @property
     def test_file_path(self):
-        return self._get_prop("test")
+        return self._get_path("test")
 
     @property
     def valid_file_path(self):
-        return self._get_prop("valid")
+        return self._get_path("valid")
 
     @property
     def sample_file_path(self):
-        return self._get_prop("sample")
+        return self._get_path("sample")
     
-    def _get_prop(self, name):
+    def _get_path(self, name):
         return "" if name not in self._resource else self._resource[name]        
 
-    def data(self, split_target=False):
+    def data(self, split_target=True, as_dataframe=False):
         return self._get_data("data", split_target)
     
-    def train_data(self, split_target=False):
+    def train_data(self, split_target=True, as_dataframe=False):
         return self._get_data("train", split_target)
 
-    def test_data(self, split_target=False):
+    def test_data(self, split_target=True, as_dataframe=False):
         return self._get_data("test", split_target)
 
-    def valid_data(self, split_target=False):
+    def valid_data(self, split_target=True, as_dataframe=False):
         return self._get_data("valid", split_target)
 
-    def sample_data(self, split_target=False):
+    def sample_data(self, split_target=True, as_dataframe=False):
         return self._get_data("sample", split_target)
 
-    def _get_data(self, name, split_target):
+    def train_iter(self, batch_size, split_target=True, as_dataframe=False, rotation=True):
+        return self._iterate("train", batch_size, split_target, rotation)
+
+    def _get_data(self, name, split_target, batch_size):
         if name not in self._resource:
             raise Exception("Can not find {} data resource.".format(name))
         return self._to_pandas(self._resource[name], split_target)
 
-    def _to_pandas(self, path, split_target):
+    def _iterate(self, name, batch_size, split_target, as_dataframe, rotation):
+        initial_batch = None
+        path = self._get_path(name)
+
+        data = open(path, encoding="utf-8")
+        buffer = []
+        count = 0
+        while True:
+            for line in data:
+                buffer.append(line.replace("\n", "").split(self.separator))
+                count += 1
+                if count == batch_size:
+                    if 
+                    batch = pd.DataFrame(data=buffer, columns=self.columns)
+                    yield batch
+                    count = 0
+                    buffer.clear()
+            
+            if not rotation:
+                break
+
+    def _to_pandas(self, path, split_target, as_dataframe):
         df = pd.read_table(path, header=None, names=self.columns)
 
-        if not split_target:
-            return df
-        elif self.target and self.target in df.columns:
+        if split_target and self.target and self.target in df.columns:
             target = df[self.target]
             df.drop(self.target, axis=1, inplace=True)
-            return target, df
+            if as_dataframe:
+                return target, df
+            else:
+                return target.values, df.values
         else:
-            return df
-    
+            if as_dataframe:
+                return df
+            else:
+                return df.values
+
     def to_indexed(self, vocab_resources=("train", "valid", "test"), vocab_columns=()):
         ir = IndexedResource(self, vocab_resources, vocab_columns)
         return ir
