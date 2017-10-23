@@ -3,19 +3,19 @@
 Let me introduce supported dataset in chazutsu!
 
 * Sentiment Analysis
-  * [Movie Review Data](### Movie Review Data)
-  * [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#customer-review-datasets)
-  * [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#large-movie-review-datasetimdb)
+  * [Movie Review Data](#movie-review-data)
+  * [Customer Review Datasets](#customer-review-datasets)
+  * [Large Movie Review Dataset(IMDB)](#large-movie-review-datasetimdb)
 * Text classification
-  * [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#20-newsgroups)
-  * [Reuters News Courpus (RCV1-v2)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#reuters-news-courpus-rcv1-v2)
+  * [20 Newsgroups](#20-newsgroups)
+  * [Reuters News Courpus (RCV1-v2)](#reuters-news-courpus-rcv1-v2)
 * Language Modeling
-  * [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#penn-tree-bank)
-  * [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#wikitext-2)
-  * [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#wikitext-103)
-  * [text8](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#text8)
+  * [Penn Tree Bank](#penn-tree-bank)
+  * [WikiText-2](#wikitext-2)
+  * [WikiText-103](#wikitext-103)
+  * [text8](#text8)
 * Textual entailment
-  * [The Multi-Genre Natural Language Inference (MultiNLI)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#the-multi-genre-natural-language-inference-multinli)
+  * [The Multi-Genre Natural Language Inference (MultiNLI)](#the-multi-genre-natural-language-inference-multinli)
 
 ## Sentiment Analysis
 
