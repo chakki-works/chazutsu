@@ -1,6 +1,6 @@
 import os
+import re
 import zipfile
-import shutil
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
@@ -11,23 +11,25 @@ class CustomerReview(Dataset):
     def __init__(self, kind="products5"):
         super().__init__(
             name="Customer Review Data",
-            site_url="https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets",
+            site_url="https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets",  # noqa
             download_url="",
-            description="customer review data from amazon.com that is annotated to each sentences"
+            description="customer review data from amazon.com that is annotated to each sentences"  # noqa
             )
-        
+
         urls = {
-            "products5": "http://www.cs.uic.edu/~liub/FBS/CustomerReviewData.zip",
-            "additional9": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/Reviews-9-products.zip",
-            "more3": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/CustomerReviews-3-domains.zip",
+            "products5": "http://www.cs.uic.edu/~liub/FBS/CustomerReviewData.zip",  # noqa
+            "additional9": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/Reviews-9-products.zip",  # noqa
+            "more3": "https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/CustomerReviews-3-domains.zip",  # noqa
         }
 
         if kind not in urls:
-            raise Exception("You have to choose kind from {}".format(",".join(urls.keys())))
+            raise Exception("You have to choose kind from {}".format(
+                ",".join(urls.keys()))
+                )
 
         self.kind = kind
         self.download_url = urls[self.kind]
-    
+
     @classmethod
     def products5(cls):
         return CustomerReview("products5")
@@ -48,15 +50,18 @@ class CustomerReview(Dataset):
         elif self.kind == "more3":
             return self._extract_more3(path)
         else:
-            raise Exception("Directed kind {} is not supported in extraction process.".format(self.kind))
+            raise Exception("The kind {} is not supported.".format(self.kind))
 
     def make_resource(self, data_root):
-        return Resource(data_root, columns=["sentence-type", "polarity", "detail", "review"], target="polarity")
+        return Resource(
+                data_root,
+                columns=["sentence-type", "polarity", "detail", "review"],
+                target="polarity")
 
     def _extract_products5(self, path):
-        dir, file_name = os.path.split(path)
-        work_dir = os.path.join(dir, "tmp")
-        products5_path = os.path.join(dir, "products5.txt")
+        _dir, file_name = os.path.split(path)
+        work_dir = os.path.join(_dir, "tmp")
+        products5_path = os.path.join(_dir, "products5.txt")
 
         with zipfile.ZipFile(path) as z:
             z.extractall(path=work_dir)
@@ -80,18 +85,19 @@ class CustomerReview(Dataset):
                                 f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
-        
+
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
-                        )
+                        " {} lines is skipped " \
+                        "because annotation format is incorrect.".format(
+                          len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return products5_path
 
@@ -122,18 +128,18 @@ class CustomerReview(Dataset):
                                 f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
-        
+
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
-                        )
+                        " {} lines is skipped because " \
+                        "annotation format is incorrect.".format(len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return additional9_path
 
@@ -167,18 +173,18 @@ class CustomerReview(Dataset):
                                 f.write((r.to_row() + "\n").encode("utf-8"))
                             else:
                                 skipped.append(_ln)
-        
+
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped because of annotation format is not correct.".format(len(skipped))
-                        )
+                        " {} lines is skipped because " \
+                        "annotation format is incorrect.".format(len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
         # remove files
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return more3_path
 
@@ -190,7 +196,7 @@ class ReviewSentence():
         self.detail = detail
         self.body = body
         self.polarity = polarity
-    
+
     @classmethod
     def parse(cls, sentence):
         s = sentence.strip()
@@ -199,7 +205,7 @@ class ReviewSentence():
 
         if s.startswith("*"):
             return None  # comment
-        
+
         if s.startswith("[t]"):
             return ReviewSentence("t", s[len("[t]"):])
 
@@ -212,7 +218,7 @@ class ReviewSentence():
         attr, body = attr_body
         if not attr:
             return ReviewSentence("-", body)
-        
+
         attrs = attr.split(",")
         details = []
         scores = []
@@ -220,14 +226,15 @@ class ReviewSentence():
             _a = a.strip()
             if not _a:
                 continue
-            detail = _a.replace("[", "_").replace("{", "_").replace("]", "").replace("}", "")
+            detail = _a.replace("[", "_").replace("{", "_")
+            detail = detail.replace("]", "").replace("}", "")
             ds = detail.split("_")
 
             if len(ds) == 2:  # no attribute
                 detail += "_"
-            elif len(ds) == 1: # annotation miss
+            elif len(ds) == 1:  # annotation miss
                 break
-            
+
             if len(ds) > 1:
                 if ds[1] == "+":
                     scores.append(1)
@@ -240,17 +247,16 @@ class ReviewSentence():
             else:
                 continue
             details.append(detail)
-        
+
         if len(scores) == 0:
             return ReviewSentence("", "")
 
         score = sum(scores) / len(scores)
         return ReviewSentence("po", body, ",".join(details), score)
-    
+
     def to_row(self):
         return "\t".join([
-            self.sentence_type, 
+            self.sentence_type,
             str(self.polarity),
             self.detail,
             self.body])
-    

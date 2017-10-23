@@ -1,9 +1,8 @@
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import shutil
 import unittest
-import requests
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
 
 
@@ -26,8 +25,12 @@ class TestText8(unittest.TestCase):
         self.assertTrue(r.train_file_path)
         self.assertTrue(r.test_file_path)
 
+    def test_download(self):
+        r = chazutsu.datasets.Text8.ja().download(directory=DATA_ROOT)
+        shutil.rmtree(r.root)
+
     def test_tokenize(self):
-        r = chazutsu.datasets.Text8().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.Text8.en().download(directory=DATA_ROOT)
         r_id = r.to_indexed().make_vocab(min_word_count=5)
 
         train_ids = r_id.train_data()

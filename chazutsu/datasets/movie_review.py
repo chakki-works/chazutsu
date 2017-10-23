@@ -1,6 +1,5 @@
 import os
 import tarfile
-import shutil
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
@@ -11,24 +10,26 @@ class MovieReview(Dataset):
     def __init__(self, kind="polarity"):
         super().__init__(
             name="Moview Review Data",
-            site_url="http://www.cs.cornell.edu/people/pabo/movie-review-data/",
+            site_url="http://www.cs.cornell.edu/people/pabo/movie-review-data/",  # noqa
             download_url="",
-            description="movie review data that is annotated by 3 kinds of label (polarity, subjective rating, subjectivity)."
+            description="movie review data is annotated by 3 kinds of label" \
+            " (polarity, subjective rating, subjectivity)."
             )
-        
+
         urls = {
-            "polarity": "http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz",
-            "polarity_v1": "http://www.cs.cornell.edu/people/pabo/movie-review-data/rt-polaritydata.tar.gz",
-            "rating": "http://www.cs.cornell.edu/people/pabo/movie-review-data/scale_data.tar.gz",
-            "subjectivity": "http://www.cs.cornell.edu/people/pabo/movie-review-data/rotten_imdb.tar.gz"
+            "polarity": "http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz",  # noqa
+            "polarity_v1": "http://www.cs.cornell.edu/people/pabo/movie-review-data/rt-polaritydata.tar.gz",  # noqa
+            "rating": "http://www.cs.cornell.edu/people/pabo/movie-review-data/scale_data.tar.gz",  # noqa
+            "subjectivity": "http://www.cs.cornell.edu/people/pabo/movie-review-data/rotten_imdb.tar.gz"  # noqa
         }
 
         if kind not in urls:
-            raise Exception("You have to choose kind from {}".format(",".join(urls.keys())))
+            keys = ",".join(urls.keys())
+            raise Exception("You have to choose kind from {}".format(keys))
 
         self.kind = kind
         self.download_url = urls[self.kind]
-    
+
     @classmethod
     def polarity(cls):
         return MovieReview("polarity")
@@ -55,15 +56,20 @@ class MovieReview(Dataset):
         elif self.kind == "subjectivity":
             return self._extract_subjectivity(path)
         else:
-            raise Exception("Directed kind {} is not supported in extraction process.".format(self.kind))
+            raise Exception(
+                "{} is not supported in extraction process.".format(self.kind))
 
     def make_resource(self, data_root):
         if self.kind in ["polarity", "polarity_v1"]:
-            return Resource(data_root, columns=["polarity", "review"], target="polarity")
+            return Resource(data_root,
+                            columns=["polarity", "review"], target="polarity")
         elif self.kind == "rating":
-            return Resource(data_root, columns=["rating", "review"], target="rating")
+            return Resource(data_root,
+                            columns=["rating", "review"], target="rating")
         elif self.kind == "subjectivity":
-            return Resource(data_root, columns=["subjectivity", "review"], target="subjectivity")
+            return Resource(data_root,
+                            columns=["subjectivity", "review"],
+                            target="subjectivity")
         else:
             return Resource(data_root)
 
@@ -80,46 +86,44 @@ class MovieReview(Dataset):
 
         with open(polarity_file_path, mode="w", encoding="utf-8") as f:
             for i, p in enumerate([negative_path, positive_path]):
-                label = i # negative = 0, positive = 1
-                self.logger.info(
-                    "Extracting {} data.".format("negative" if label == 0 else "positive")
-                    )
+                label = i  # negative = 0, positive = 1
+                label_name = "negative" if label == 0 else "positive"
+                self.logger.info("Extracting {} data.".format(label_name))
                 for txt in xtqdm(os.listdir(p)):
                     with open(os.path.join(p, txt), encoding="utf-8") as tf:
                         lines = [ln.strip().replace("\t", " ") for ln in tf.readlines()]
-                        review= " ".join(lines)
+                        review = " ".join(lines)
                         f.write("\t".join([str(label), review]) + "\n")
 
         # remove files
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return polarity_file_path
 
     def _extract_polarity_v1(self, path):
         dir, file_name = os.path.split(path)
         extracteds = self.extract_file(
-            path, 
-            ["rt-polaritydata/rt-polarity.neg","rt-polaritydata/rt-polarity.pos"],
-            remove=True
+            path,
+            ["rt-polaritydata/rt-polarity.neg",
+             "rt-polaritydata/rt-polarity.pos"]
         )
 
         polarity_file = os.path.join(dir, "review_polarity_v1.txt")
         with open(polarity_file, mode="w", encoding="utf-8") as f:
             for e in extracteds:
                 label = 0 if e.endswith(".neg") else 1
-                self.logger.info(
-                    "Extracting {} data.".format("negative" if label == 0 else "positive")
-                    )
+                label_name = "negative" if label == 0 else "positive"
+                self.logger.info("Extracting {} data.".format(label_name))
                 total = self.get_line_count(e)
                 with open(e, mode="r", errors="replace", encoding="utf-8") as p:
                     for ln in xtqdm(p, total=total):
                         review = ln.strip().replace("\t", " ")
                         f.write("\t".join([str(label), review]) + "\n")
-        
+
         for e in extracteds:
-            os.remove(e)
-        
+            self.remove(e)
+
         return polarity_file
 
     def _extract_rating(self, path):
@@ -129,7 +133,7 @@ class MovieReview(Dataset):
 
         with tarfile.open(path) as t:
             t.extractall(path=work_dir)
-        
+
         rating_dir = os.path.join(work_dir, "scaledata")
 
         rating_file = open(rating_file_path, "w", encoding="utf-8")
@@ -137,7 +141,7 @@ class MovieReview(Dataset):
             user_dir = os.path.join(rating_dir, user)
             if not os.path.isdir(user_dir):
                 continue
-            
+
             sub_in_review_file = os.path.join(user_dir, "subj." + user)
             user_rating_file = os.path.join(user_dir, "rating." + user)
             total = self.get_line_count(sub_in_review_file)
@@ -148,36 +152,34 @@ class MovieReview(Dataset):
                         _rv = review.strip().replace("\t", " ")
                         _r = rating.strip()
                         rating_file.write("\t".join([_r, _rv]) + "\n")
-        
+
         rating_file.close()
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return rating_file_path
 
     def _extract_subjectivity(self, path):
         dir, file_name = os.path.split(path)
         extracteds = self.extract_file(
-            path, 
-            ["plot.tok.gt9.5000","quote.tok.gt9.5000"],
-            remove=True
-        )
+            path,
+            ["plot.tok.gt9.5000", "quote.tok.gt9.5000"])
 
         subjectivity_file = os.path.join(dir, "subjectivity.txt")
         with open(subjectivity_file, mode="w", encoding="utf-8") as f:
             for e in extracteds:
                 fname = os.path.basename(e)
-                label = 1 if fname.startswith("plot.") else 0  # subjective(plot) = 1
-                self.logger.info(
-                    "Extracting {} data.".format("subjective" if label == 1 else "objective")
-                    )
+                # subjective(plot) = 1
+                label = 1 if fname.startswith("plot.") else 0
+                label_name = "subjective" if label == 1 else "objective"
+                self.logger.info("Extracting {} data.".format(label_name))
                 total = self.get_line_count(e)
                 with open(e, mode="r", errors="replace", encoding="utf-8") as sb:
                     for ln in xtqdm(sb, total=total):
                         review = ln.strip().replace("\t", " ")
                         f.write("\t".join([str(label), review]) + "\n")
-        
+
         for e in extracteds:
-            os.remove(e)
-        
+            self.remove(e)
+
         return subjectivity_file

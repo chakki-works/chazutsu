@@ -9,7 +9,8 @@ from chazutsu.datasets.framework.tokenizer import Tokenizer
 
 class Vocabulary():
 
-    def __init__(self, root, name, tokenizer=None, end_of_sentence="", unknown="<unk>"):
+    def __init__(self, root, name, tokenizer=None,
+                 end_of_sentence="", unknown="<unk>"):
         self.root = root
         self.name = name
         self._vocab_file_path = os.path.join(root, name + ".vocab")
@@ -38,7 +39,9 @@ class Vocabulary():
     def has_vocab(self):
         return os.path.exists(self._vocab_file_path)
 
-    def make(self, path_or_paths, vocab_size=-1, min_word_count=0, target_column_indexes=(), separator="\t", reserved_words=()):
+    def make(self,
+             path_or_paths, vocab_size=-1, min_word_count=0,
+             target_column_indexes=(), separator="\t", reserved_words=()):
         vocab = Counter()
         paths = path_or_paths
         if isinstance(paths, str):
@@ -47,7 +50,8 @@ class Vocabulary():
         for p in paths:
             self.logger.info("Read {} to make vocabulary.".format(p))
             count = self.get_line_count(p)
-            for words in xtqdm(self.fetch_line(p, target_column_indexes, separator), total=count):
+            for words in xtqdm(self.fetch_line(p, target_column_indexes,
+                               separator), total=count):
                 for w in words:
                     vocab[w] += 1
         
@@ -55,7 +59,7 @@ class Vocabulary():
         if self.unknown and self.unknown not in _vocab:
             _vocab.insert(0, self.unknown)
         if self.end_of_sentence and self.end_of_sentence not in _vocab:
-            _vocabinsert(0, self.end_of_sentence)
+            _vocab.insert(0, self.end_of_sentence)
         if len(reserved_words) > 0:
             for w in reserved_words:
                 _vocab.insert(0, w)
@@ -63,15 +67,15 @@ class Vocabulary():
         if vocab_size > 0:
             _vocab = _vocab[:vocab_size]
 
-        self.logger.info("The vocabulary count is {}. You can see it in {}.".format(
-            len(_vocab), self._vocab_file_path
-            ))
+        self.logger.info(
+            "The vocabulary count is {}. You can see it in {}.".format(
+                len(_vocab), self._vocab_file_path))
         with open(self._vocab_file_path, "w", encoding="utf-8") as f:
             f.write("\n".join(_vocab))
         self._vocab = dict(zip(_vocab, range(len(_vocab))))
         self.__rev_vocab = {}
 
-    def get_line_count(self, file_path):  
+    def get_line_count(self, file_path):
         count = 0
         with open(file_path, "r+") as fp:
             buf = mmap.mmap(fp.fileno(), 0)
@@ -93,7 +97,7 @@ class Vocabulary():
                     words.append(self.end_of_sentence)
 
                 yield words
-    
+
     def load(self):
         if self.has_vocab():
             self.__rev_vocab = {}
@@ -118,9 +122,9 @@ class Vocabulary():
     def ids_to_words(self, ids):
         if len(self._vocab) == 0:
             self.load()
-        
+
         if len(self.__rev_vocab) == 0:
-            self.__rev_vocab = {v:k for k, v in self._vocab.items()}
+            self.__rev_vocab = {v: k for k, v in self._vocab.items()}
 
         words = [self.__rev_vocab[i] for i in ids]
         return words
@@ -128,12 +132,11 @@ class Vocabulary():
     def ids_to_one_hots(self, ids):
         if len(self._vocab) == 0:
             self.load()
-        
+
         if len(self.__rev_vocab) == 0:
-            self.__rev_vocab = {v:k for k, v in self._vocab.items()}
-        
+            self.__rev_vocab = {v: k for k, v in self._vocab.items()}
+
         one_hots = np.zeros((len(ids), len(self._vocab)))
         for i, _id in enumerate(ids):
             one_hots[i][_id] = 1
         return one_hots
-

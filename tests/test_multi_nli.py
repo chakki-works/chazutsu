@@ -16,7 +16,7 @@ class TestMultiNLI(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        multi_nli = MultiNLI(preprocess=True)
+        multi_nli = MultiNLI()
         if not os.path.exists(cls.PATH):
             os.mkdir(cls.PATH)
             multi_nli.save_dataset(cls.PATH)
@@ -27,14 +27,14 @@ class TestMultiNLI(unittest.TestCase):
             shutil.rmtree(cls.PATH)
 
     def test_preprocess(self):
-        multi_nli = MultiNLI(preprocess=True)
+        multi_nli = MultiNLI()
         values = multi_nli.preprocess_jsonl(test_jsonl)
 
         self.assertEqual(len(values), len(multi_nli.columns))
         print(values)
-    
+
     def test_extract(self):
-        multi_nli = MultiNLI(preprocess=True)
+        multi_nli = MultiNLI()
         file_path = os.path.join(self.PATH, multi_nli._get_file_name(None))
         train_file = multi_nli.extract(file_path)
         self.assertTrue(train_file)

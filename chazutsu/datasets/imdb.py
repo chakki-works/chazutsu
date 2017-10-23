@@ -1,7 +1,5 @@
 import os
-import shutil
 import tarfile
-import pandas as pd
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
@@ -12,40 +10,45 @@ class IMDB(Dataset):
         super().__init__(
             name="Large Movie Review Dataset(IMDB)",
             site_url="http://ai.stanford.edu/~amaas/data/sentiment/",
-            download_url="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz",
-            description="Movie review data that is constructed by 25,000 train/test reviews that have positive/negative annotation"
+            download_url="http://ai.stanford.edu/~amaas/data/sentiment/aclImdb_v1.tar.gz",  # noqa
+            description="Movie review data is constructed by 25,000 reviews " \
+                        "that have positive/negative annotation"
             )
-    
-    def download(self, directory="", shuffle=True, test_size=0, sample_count=0, keep_raw=False):
+
+    def download(self,
+                 directory="", shuffle=True, test_size=0, sample_count=0,
+                 force=False):
         if test_size != 0:
-            raise Exception("This dataset is already splitted to train & test.")
-        
-        return super().download(directory, shuffle, 0, sample_count, keep_raw)
-    
+            raise Exception("The dataset is already splitted to train & test.")
+
+        return super().download(directory, shuffle, 0, sample_count, force)
+
     def extract(self, path):
         dir, file_name = os.path.split(path)
         work_dir = os.path.join(dir, "tmp")
         if not os.path.isdir(work_dir):
             with tarfile.open(path) as t:
                 t.extractall(path=work_dir)
-        
+
         extracted_dir = os.path.join(work_dir, "aclImdb")
         data_dirs = ["train", "test"]
         pathes = []
         for d in data_dirs:
             target_dir = os.path.join(extracted_dir, d)
             file_path = os.path.join(dir, "imdb_" + d + ".txt")
-            self.label_by_dir(file_path, target_dir, {"pos": 1, "neg": 0}, task_size=1000)
+            self.label_by_dir(
+                file_path, target_dir, {"pos": 1, "neg": 0}, task_size=1000)
 
             pathes.append(file_path)
 
             if d == "train":
                 unlabeled = os.path.join(dir, "imdb_unlabeled.txt")
-                self.label_by_dir(unlabeled, target_dir, {"unsup": None}, task_size=1000)
+                self.label_by_dir(
+                    unlabeled, target_dir, {"unsup": None}, task_size=1000)
                 pathes.append(unlabeled)
 
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return pathes[0]
 
@@ -64,20 +67,19 @@ class IMDB(Dataset):
     @classmethod
     def _file_to_features(cls, path):
         # override this method if you want implements custome process
-        fs = []
         file_name = os.path.basename(path)
         f, ext = os.path.splitext(file_name)
         els = f.split("_")
         rating = 0
         if len(els) == 2:
             rating = els[-1]
-        
+
         review = ""
         with open(path, encoding="utf-8") as f:
             lines = f.readlines()
             lines = [ln.replace("\t", " ").strip() for ln in lines]
             review = " ".join(lines)
-        
+
         if rating != "0":
             return [rating, review]
         else:
@@ -86,15 +88,13 @@ class IMDB(Dataset):
 
 class IMDBResource(Resource):
 
-    def __init__(self, 
-        root,
-        columns=None,
-        target="",
-        separator="\t",
-        pattern=()):
+    def __init__(self,
+                 root,
+                 columns=None, target="",
+                 separator="\t", pattern=()):
 
         super().__init__(
-            root, 
+            root,
             ["polarity", "rating", "review"],
             "polarity",
             separator,
@@ -105,7 +105,7 @@ class IMDBResource(Resource):
                 "unlabeled": "_unlabeled",
                 "sample": "_samples"
             })
-    
+
     @property
     def unlabeled_file_path(self):
         return self._get_prop("unlabeled")

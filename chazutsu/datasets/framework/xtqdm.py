@@ -7,6 +7,7 @@ def get_xtqdm():
     else:
         return tqdm
 
+
 def is_jupyter():
     try:
         shell = get_ipython().__class__.__name__
@@ -18,5 +19,6 @@ def is_jupyter():
             return False
     except NameError:
         return False
+
 
 xtqdm = get_xtqdm()

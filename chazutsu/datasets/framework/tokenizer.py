@@ -6,7 +6,7 @@ class Tokenizer():
 
     def __init__(self):
         self._line_strip_pattern = re.compile("(\.|\!|\?|\"|\'|,|\(|\)|\<|\>)")
-    
+
     def tokenize(self, sentence):
         stripped = self.line_strip(sentence)
         words = self._tokenize(stripped)
@@ -16,9 +16,8 @@ class Tokenizer():
 
     def line_strip(self, sentence):
         return re.sub(self._line_strip_pattern, " ", sentence)
-    
+
     def _tokenize(self, stripped_sentence):
         # You have to implement how to tokenize the sentence
-        words = stripped_sentence.split(" ") 
+        words = stripped_sentence.split(" ")
         return words
-    

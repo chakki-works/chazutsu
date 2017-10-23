@@ -1,7 +1,6 @@
 import os
 import re
 import tarfile
-import shutil
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
@@ -13,10 +12,10 @@ class NewsGroup20(Dataset):
         super().__init__(
             name="20 Newsgroups",
             site_url="http://qwone.com/~jason/20Newsgroups/",
-            download_url="http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz",
-            description="news article and its comments that are categorized by 20 group."
+            download_url="http://qwone.com/~jason/20Newsgroups/20news-18828.tar.gz",  # noqa
+            description="news and its comments categorized by 20 group."
             )
-        
+
         self.group_filter = group_filter
         self._mail_pattern = re.compile("[\w|\.]+@[\w|\.]+")
 
@@ -42,7 +41,8 @@ class NewsGroup20(Dataset):
                 for news in xtqdm(os.listdir(group_path)):
                     group_name = gp
                     category_name = self.get_category(gp)
-                    subject, author, text = self.parse(path=os.path.join(group_path, news))
+                    news_path = os.path.join(group_path, news)
+                    subject, author, text = self.parse(path=news_path)
                     ln = "\t".join([
                         group_name,
                         category_name,
@@ -53,13 +53,14 @@ class NewsGroup20(Dataset):
                     f.write(ln.encode("utf-8"))
 
         # remove files
-        os.remove(path)
-        shutil.rmtree(work_dir)
+        self.remove(path)
+        self.remove(work_dir)
 
         return newsgroup20_path
 
     def make_resource(self, data_root):
-        return Resource(data_root, columns=["group", "group-category", "subject", "author", "text"], target="group")
+        columns = ["group", "group-category", "subject", "author", "text"]
+        return Resource(data_root, columns=columns, target="group")
 
     def get_category(self, group_name):
         g = group_name
@@ -70,9 +71,9 @@ class NewsGroup20(Dataset):
         category_name = cats[0]
         if g in ["alt.atheism", "soc.religion.christian"]:
             category_name = "religion"
-        
+
         return category_name
-    
+
     def parse(self, path="", raw_text=""):
         body = raw_text
 
@@ -83,11 +84,11 @@ class NewsGroup20(Dataset):
                 body = f.readlines()
         else:
             raise Exception("Can not get parse target text.")
-        
+
         def strip(s):
             _s = s
             for c in ["<", ">", "^", "-", "(", ")", "*"]:
-                _s = _s.replace(c , "")
+                _s = _s.replace(c, "")
 
             _s = re.sub(self._mail_pattern, "", _s)
             _s = _s.replace("\t", " ")
@@ -121,13 +122,13 @@ class NewsGroup20(Dataset):
                 author = ":".join(els[1:]).strip()
             elif els[0].startswith("Subject"):
                 subject = ":".join(els[1:]).strip()
-            
+
             if author and subject:
                 break
 
             if i > 2:
                 break  # can not find out
-        
+
         text = " ".join(body[2:])
 
         return subject, author, text

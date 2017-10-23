@@ -7,6 +7,7 @@ import math
 import zipfile
 import tarfile
 import gzip
+import shutil
 from urllib.parse import urlparse
 import requests
 from chazutsu.datasets.framework.xtqdm import xtqdm
@@ -17,7 +18,9 @@ from chazutsu.datasets.framework.resource import Resource
 class Dataset():
     """ Dataset Class Framework """
 
-    def __init__(self, name, site_url, download_url, description, log_level=None):
+    def __init__(self,
+                 name, site_url, download_url, description,
+                 log_level=None, test_download_url=""):
         """
         Args:
             name        : dataset name
@@ -30,10 +33,18 @@ class Dataset():
         self.site_url = site_url
         self.download_url = download_url
         self.description = description
+        # When test_mode = True
+        # 1. Use the test_url
+        # 2. Don't skip any process
+        # 3. Don't remove the file
+        self.test_mode = False
+        self.test_download_url = test_download_url
+        if not self.test_download_url:
+            self.test_download_url = download_url
 
         # create logger
         from logging import getLogger, StreamHandler, DEBUG
-        self.logger = getLogger("_".join(["dataset", self.__class__.__name__.lower()]))
+        self.logger = getLogger(self.__class__.__name__.lower())
         if not self.logger.hasHandlers():
             # logger is global object!
             _level = DEBUG if log_level is None else log_level
@@ -41,18 +52,19 @@ class Dataset():
             handler.setLevel(_level)
             self.logger.setLevel(_level)
             self.logger.addHandler(handler)
-    
-    def download(self, directory="", shuffle=True, test_size=0.3, sample_count=0, keep_raw=False, force=False):
-        # input parameter check
-        #   directory: don't make default directory in download method because can not specify current dir.
-        #   test_size: have to be smaller than 1
-        dir = self.check_directory(directory)
-        dataset_root = os.path.join(dir, self._get_root_name())
+
+    def download(self,
+                 directory="", shuffle=True, test_size=0.3, sample_count=0,
+                 force=False):
+        _dir = self.check_directory(directory)
+        dataset_root = os.path.join(_dir, self._get_root_name())
         if not os.path.isdir(dataset_root):
             os.mkdir(dataset_root)
-        elif not force:
+        elif not force and not self.test_mode:
             # data_root already exists and have contents
-            self.logger.info("Read resource from the existed resource (if you want to retry, set force=True).")
+            self.logger.info(
+                "Read resource from the existed resource" \
+                "(if you want to retry, set force=True).")
             return self.make_resource(dataset_root)
 
         # download and save file
@@ -71,19 +83,20 @@ class Dataset():
                 f.writelines(lines)
 
         # make sample file
-        sample_path = self.make_samples(extracted_file_path, sample_count)
+        self.make_samples(extracted_file_path, sample_count)
 
         # split to train & test
-        train_test_path = self.train_test_split(extracted_file_path, test_size, keep_raw)
-        
-        self.logger.info("Done all process! Make below files at {}".format(dataset_root))
+        self.train_test_split(extracted_file_path, test_size)
+
+        self.logger.info(
+            "Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
             self.logger.info(" " + f)
-        
+
         r = self.make_resource(dataset_root)
 
         return r
-    
+
     def load(self, directory=""):
         dir = self.check_directory(directory)
         dataset_root = os.path.join(dir, self._get_root_name())
@@ -91,7 +104,7 @@ class Dataset():
             return self.make_resource(dataset_root)
         else:
             return None
-    
+
     def _get_root_name(self):
         return self.name.lower().replace(" ", "_")
 
@@ -100,7 +113,8 @@ class Dataset():
             return directory
         else:
             current = os.getcwd()
-            self.logger.info("Make directory for downloading the file to {}.".format(current))
+            self.logger.info(
+                "Make directory for download at {}.".format(current))
             data_dir = os.path.join(current, "data")
             if not os.path.isdir(data_dir):
                 os.mkdir(data_dir)
@@ -109,25 +123,28 @@ class Dataset():
     def save_dataset(self, dataset_root):
         save_file_path = os.path.join(dataset_root, self._get_file_name(None))
         if os.path.exists(save_file_path):
-            self.logger.info("Skip the downloading the file because it already exists.")
+            self.logger.info("The dataset file already exists.")
             return save_file_path
 
+        url = self.test_download_url if self.test_mode else self.download_url
         # download and save it as raw file
-        self.logger.info("Begin downloading the {} dataset from {}.".format(self.name, self.download_url))
+        self.logger.info(
+            "Begin downloading the {} dataset from {}.".format(self.name, url))
         resp = requests.get(self.download_url, stream=True)
         if not resp.ok:
-            raise Exception("Can not get dataset from {}.".format(self.download_url))
-        
+            raise Exception("Can not get dataset from {}.".format(url))
+
         # save content in response to file
         total_size = int(resp.headers.get("content-length", 0))
         file_name = self._get_file_name(resp)
         _, ext = os.path.splitext(file_name)
         save_file_path = os.path.abspath(os.path.join(dataset_root, file_name))
-        self.logger.info("The dataset file is saved to {}".format(save_file_path))
+        self.logger.info("The dataset is saved to {}".format(save_file_path))
         with open(save_file_path, "wb") as f:
             chunk_size = 1024
             limit = total_size / chunk_size
-            for data in xtqdm(resp.iter_content(chunk_size=chunk_size), total=limit, unit="B", unit_scale=True):
+            for data in xtqdm(resp.iter_content(chunk_size=chunk_size),
+                              total=limit, unit="B", unit_scale=True):
                 f.write(data)
         
         return save_file_path
@@ -136,10 +153,11 @@ class Dataset():
         # you may unpack the file and extract data file.
         return path
     
-    def extract_file(self, path, relative_pathes, remove=True):
+    def extract_file(self, path, relative_pathes):
         # unpack the archive file and extract directed path file
         base, _ = os.path.splitext(path)
-        target = relative_pathes if isinstance(relative_pathes, (tuple, list)) else [relative_pathes]
+        is_path_lists = isinstance(relative_pathes, (tuple, list))
+        target = relative_pathes if is_path_lists else [relative_pathes]
 
         extracteds = []
         if zipfile.is_zipfile(path):
@@ -170,20 +188,21 @@ class Dataset():
                     for ln in g:
                         f.write(ln)
 
-        if remove:
-            # remove downloaded raw file (zip/tar.gz etc)
-            os.remove(path)
+        # remove downloaded raw file (zip/tar.gz etc)
+        self.remove(path)
 
         return extracteds
     
     def label_by_dir(self, file_path, target_dir, dir_and_label, task_size=10):
-
         label_dirs = dir_and_label.keys()
-        dirs = [d for d in os.listdir(target_dir) if os.path.isdir(os.path.join(target_dir, d)) and d in label_dirs]
+        dirs = [d for d in os.listdir(target_dir)
+                if os.path.isdir(os.path.join(target_dir, d))
+                and d in label_dirs]
 
         write_flg = True
         for d in dirs:
-            self.logger.info("Extracting {} directory files (labeled by {}).".format(d, dir_and_label[d]))
+            self.logger.info(
+                "Extracting {} (labeled by {}).".format(d, dir_and_label[d]))
             label = dir_and_label[d]
             dir_path = os.path.join(target_dir, d)
             pathes = [os.path.join(dir_path, f) for f in os.listdir(dir_path)]
@@ -191,15 +210,17 @@ class Dataset():
             task_length = int(math.ceil(len(pathes) / task_size))
             for i in xtqdm(range(task_length)):
                 index = i * task_size
-                task_packet = pathes[index:(index + task_size)]
-                lines = Parallel(n_jobs=-1)(delayed(self._parallel_parser)(label, t) for t in task_packet)
-                with open(file_path, mode="w" if write_flg else "a", encoding="utf-8") as f:
+                tasks = pathes[index:(index + task_size)]
+                lines = Parallel(n_jobs=-1)(
+                        delayed(self._make_pair)(label, t) for t in tasks)
+                mode = "w" if write_flg else "a"
+                with open(file_path, mode=mode, encoding="utf-8") as f:
                     for ln in lines:
                         f.write(ln)
                 write_flg = False
     
     @classmethod
-    def _parallel_parser(cls, label, path):
+    def _make_pair(cls, label, path):
         features = cls._file_to_features(path)
         line = "\t".join([str(label)] + features) + "\n"
         return line
@@ -214,9 +235,11 @@ class Dataset():
             fs = [" ".join(lines)]
         return fs
 
-    def train_test_split(self, original_file_path, test_size, keep_raw=False):
+    def train_test_split(self, original_file_path, test_size):
         if test_size < 0 or test_size > 1:
-            self.logger.error("test_size have to be between 0 ~ 1. if you don't want to split, please set 0.")
+            self.logger.error(
+                "test_size have to be between 0 ~ 1." \
+                "if you don't want to split, please set 0.")
             return []
         elif test_size == 0 or test_size == 1:
             return []
@@ -242,14 +265,14 @@ class Dataset():
         train_file.close()
         test_file.close()
 
-        to_base = lambda x: os.path.basename(x)
-        self.logger.info("File is splited to {} & {}. Each records are {} & {} (test_size={:.2f}%).".format(
-            to_base(train_test_path[0]), to_base(train_test_path[1]),
-            total_count - test_count, test_count, test_count / total_count * 100)
+        self.logger.info(
+            "Train & Test file is {}({}rows) & {}({}rows, {:.2f}%).".format(
+             os.path.basename(train_test_path[0]), total_count - test_count,
+             os.path.basename(train_test_path[1]), test_count, 
+             test_count / total_count * 100)
             )
 
-        if not keep_raw:
-            os.remove(original_file_path)
+        self.remove(original_file_path)
 
         return train_test_path
 
@@ -276,12 +299,12 @@ class Dataset():
                     break
 
         samples_file.close()
-        self.logger.info("Make {} by picking {} records from original file.".format(
+        self.logger.info("Sample file is {} (picking {} samples).".format(
             os.path.basename(sample_path), sample_count)
         )
 
         return sample_path
-    
+
     def make_resource(self, data_root):
         return Resource(data_root)
 
@@ -297,9 +320,12 @@ class Dataset():
             parsed = urlparse(self.download_url)
             file_name = os.path.basename(parsed.path)
 
+        if self.test_mode:
+            file_name = "test_" + file_name
+
         return file_name
 
-    def get_line_count(self, file_path):  
+    def get_line_count(self, file_path):
         count = 0
         with open(file_path, "r+") as fp:
             buf = mmap.mmap(fp.fileno(), 0)
@@ -307,8 +333,18 @@ class Dataset():
                 count += 1
         return count
 
+    def remove(self, path):
+        if self.test_mode:
+            return
+        if not os.path.exists(path):
+            return
+        else:
+            if os.path.isfile(path):
+                os.remove(path)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+
     def show(self):
         print("About {}".format(self.name))
         print(self.description)
         print("see also: {}".format(self.site_url))
-

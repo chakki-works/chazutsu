@@ -1,7 +1,6 @@
 import os
 import re
 import json
-from collections import Counter
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource, IndexedResource
@@ -18,28 +17,36 @@ class MultiNLI(Dataset):
     def __init__(self, matched=True, full=False):
         """
         matched: matched dataset for mismatched dataset
-        full: use full columns in the dataset. If full=False then extract only "gold_label", "genre", "sentence1", "sentence2"
+        full: use full columns in the dataset. If full=False then extract "
+              only "gold_label", "genre", "sentence1", "sentence2"
         """
         super().__init__(
             name="MultiNLI",
             site_url="http://www.nyu.edu/projects/bowman/multinli/",
-            download_url="https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/multinli_0.9_jsonl.zip",
-            description="multi genre's text entailment dataset. There are in-domain(matched) and cross-domain(mismatched) data."
+            download_url="https://s3-ap-northeast-1.amazonaws.com/dev.tech-sketch.jp/chakki/chazutsu/multinli_0.9_jsonl.zip",  # noqa
+            description="multi genre's text entailment dataset. " \
+                        "There are in-domain(matched) and " \
+                        "cross-domain(mismatched) data."
             )
         self.matched = matched
         self.is_full = full
         self.columns = []
         if self.is_full:
-            self.columns = ["label", "annotator_labels", "genre", "pairID", "sentence1", "sentence2", "sentence1_parse", "sentence2_parse"]
+            self.columns = [
+                "label", "annotator_labels", "genre", "pairID",
+                "sentence1", "sentence2", "sentence1_parse", "sentence2_parse"]
         else:
-            self.columns = ["label", "genre", "pairID", "sentence1", "sentence2"]
+            self.columns = [
+                "label", "genre", "pairID", "sentence1", "sentence2"]
         self._tokenize_pattern = re.compile("\(|\)")
-    
-    def download(self, directory="", shuffle=True, test_size=0, sample_count=0, keep_raw=False, force=False):
+
+    def download(self,
+                 directory="", shuffle=True, test_size=0, sample_count=0,
+                 force=False):
         if test_size != 0:
-            raise Exception("This dataset is already splitted to train & test.")
+            raise Exception("The dataset is already splitted to train & test.")
         # in language modeling, shuffle is not needed
-        return super().download(directory, shuffle, 0, sample_count, keep_raw, force)
+        return super().download(directory, shuffle, 0, sample_count, force)
 
     @classmethod
     def matched(cls, full=False):
@@ -53,24 +60,23 @@ class MultiNLI(Dataset):
         dir, file_name = os.path.split(path)
         kind = "matched" if self.matched else "mismatched"
         extracteds = self.extract_file(
-            path, 
+            path,
             [
-                "multinli_0.9_jsonl/multinli_0.9_train.jsonl", 
+                "multinli_0.9_jsonl/multinli_0.9_train.jsonl",
                 "multinli_0.9_jsonl/multinli_0.9_{}_dev.jsonl".format(kind),
-                "multinli_0.9_jsonl/multinli_0.9_{}_unlabeled_test.jsonl".format(kind)
-            ],
-            remove=True
+                "multinli_0.9_jsonl/multinli_0.9_{}_unlabeled_test.jsonl".format(kind)  # noqa
+            ]
         )
 
         train_file = ""
         for e in extracteds:
             preprocessed = self.preprocess_file(e)
-            os.remove(e)
+            self.remove(e)
             if "_train" in preprocessed:
                 train_file = preprocessed
 
-        return preprocessed
-    
+        return train_file
+
     def preprocess_file(self, path):
         write_file_path = path.replace(".jsonl", ".txt")
         write_file = open(write_file_path, mode="w", encoding="utf-8")
@@ -84,7 +90,7 @@ class MultiNLI(Dataset):
                 if preprocessed:
                     w_line = "\t".join(preprocessed) + "\n"
                     write_file.write(w_line)
-        
+
         write_file.close()
         return write_file_path
 
@@ -96,8 +102,9 @@ class MultiNLI(Dataset):
         loaded["label"] = str(self.LABEL_MAP[loaded["gold_label"]])
         if "genre" not in loaded or not loaded["genre"]:
             loaded["genre"] = "-"
-        loaded["sentence1"] = self._tokenized_str(loaded["sentence1_binary_parse"])
-        loaded["sentence2"] = self._tokenized_str(loaded["sentence2_binary_parse"])
+        for sentence in ["sentence1", "sentence2"]:
+            binary = sentence + "_binary_parse"
+            loaded[sentence] = self._tokenized_str(loaded[binary])
 
         values = [loaded[c] for c in self.columns]
         return values
@@ -114,15 +121,12 @@ class MultiNLI(Dataset):
 
 class NLIResource(Resource):
 
-    def __init__(self, 
-        root,
-        columns=None,
-        target="",
-        separator="\t",
-        pattern=()):
+    def __init__(self, root,
+                 columns=None, target="",
+                 separator="\t", pattern=()):
 
         super().__init__(
-            root, 
+            root,
             columns,
             target,
             separator,
@@ -132,14 +136,16 @@ class NLIResource(Resource):
                 "dev": "_dev",
                 "sample": "_samples"
             })
-    
+
     @property
     def dev_file_path(self):
         return self._get_prop("dev")
-    
+
     def dev_data(self, split_target=False):
         return self._get_data("dev", split_target)
 
-    def to_indexed(self, vocab_resources=("train", "dev", "test"), vocab_columns=("sentence1", "sentence2")):
+    def to_indexed(self,
+                   vocab_resources=("train", "dev", "test"),
+                   vocab_columns=("sentence1", "sentence2")):
         ir = IndexedResource(self, vocab_resources, vocab_columns)
         return ir

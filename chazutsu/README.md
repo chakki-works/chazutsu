@@ -1,8 +1,25 @@
 # DataSets
 
-Let me introduce supported dataset in chazutsu.  
+Let me introduce supported dataset in chazutsu!
 
-## [Movie Review Data](http://www.cs.cornell.edu/people/pabo/movie-review-data/)
+* Sentiment Analysis
+  * [Movie Review Data](### Movie Review Data)
+  * [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#customer-review-datasets)
+  * [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#large-movie-review-datasetimdb)
+* Text classification
+  * [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#20-newsgroups)
+  * [Reuters News Courpus (RCV1-v2)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#reuters-news-courpus-rcv1-v2)
+* Language Modeling
+  * [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#penn-tree-bank)
+  * [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#wikitext-2)
+  * [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#wikitext-103)
+  * [text8](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#text8)
+* Textual entailment
+  * [The Multi-Genre Natural Language Inference (MultiNLI)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu#the-multi-genre-natural-language-inference-multinli)
+
+## Sentiment Analysis
+
+### [Movie Review Data](http://www.cs.cornell.edu/people/pabo/movie-review-data/)
 
 This dataset offers 3 type of labeled dataset.
 
@@ -31,7 +48,7 @@ If you want to download this dataset, please direct the kind as following.
 * `rating`: Bo Pang and Lillian Lee, [Seeing stars: Exploiting class relationships for sentiment categorization with respect to rating scales](http://www.cs.cornell.edu/home/llee/papers/pang-lee-stars.home.html), Proceedings of ACL 2005.
 * `subjectivity`: [A Sentimental Education: Sentiment Analysis Using Subjectivity Summarization Based on Minimum Cuts](http://www.cs.cornell.edu/home/llee/papers/cutsent.home.html), Proceedings of ACL 2004.
 
-## [Customer Review Datasets](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets)
+### [Customer Review Datasets](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html#datasets)
 
 This dataset offers annotated product's review. The annotation is done as below:
 
@@ -64,7 +81,7 @@ If you want to download this dataset, please direct as following.
 * `CustomerReview.additional9`: Xiaowen Ding, Bing Liu and Philip S. Yu. [A Holistic Lexicon-Based Approach to Opinion Mining](https://www.cs.uic.edu/~liub/FBS/opinion-mining-final-WSDM.pdf), Proceedings of WSDM-2008
 * `CustomerReview.more3`: Qian Liu, Zhiqiang Gao, Bing Liu and Yuanlin Zhang. [Automated Rule Selection for Aspect Extraction in Opinion Mining](https://www.aaai.org/ocs/index.php/IJCAI/IJCAI15/paper/view/10766/10842), Proceedings of IJCAI-2015
 
-## [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
+### [Large Movie Review Dataset(IMDB)](http://ai.stanford.edu/~amaas/data/sentiment/)
 
 This dataset offers 25,000 train/test movie reviews that have positive/negative annotation.
 
@@ -91,7 +108,181 @@ r.unlabeled_data()
 
 Andrew L. Maas, Raymond E. Daly, Peter T. Pham, Dan Huang, Andrew Y. Ng, and Christopher Potts. [Learning Word Vectors for Sentiment Analysis](http://ai.stanford.edu/~amaas/papers/wvSent_acl2011.pdf), ACL 2011
 
-## [The Multi-Genre Natural Language Inference (MultiNLI)](http://www.nyu.edu/projects/bowman/multinli/)
+## Text Classification
+
+### [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
+
+This dataset offers 20 newsgroups collection. Some of the categories are related, so these partitioned by 6 group.
+
+* comp: comp.graphics, comp.os.ms-windows.misc, comp.sys.ibm.pc.hardware, comp.sys.mac.hardware, comp.windows.x
+* rec: rec.autos, rec.motorcycles, rec.sport.baseball, rec.sport.hockey
+* sci: sci.crypt, sci.electronics, sci.med, sci.space
+* misc: misc.forsale
+* politics: talk.politics.misc, talk.politics.guns, talk.politics.mideast
+* religion: talk.religion.misc, alt.atheism, soc.religion.christian
+
+For example, `alt.atheism` and `talk.religion.misc`, `comp.windows.x` and `comp.graphics` are close, `rec.sport.baseball` and `sci.crypt` is far.
+
+If you want to download this dataset, please use below class.
+
+* `NewsGroup20`: the version that excludes duplicates and includes only "From" and "Subject" headers.
+
+**Dataset File format**
+
+* group
+* group category
+* subject(Subject)
+* author(From)
+* text
+
+**Citation/License?**
+
+* [Newsweeder: Learning to filter netnews](http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.22.6286)
+
+(could not find official cite & license)
+
+### [Reuters News Courpus (RCV1-v2)](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm)
+
+This dataset offers Reuters News articles that are categorized by topic, industries and region. It has 23,149 train and 781,265 test documents.
+
+ If you want to download this dataset, please use below class.
+
+* `ReutersNews.topics`: download the topic annotated data
+* `ReutersNews.industries`: download the industries annotated data
+* `ReutersNews.region`: download the region annotated data
+
+*(You have to take care that the each document has multiple labels)*
+
+**Dataset File format**
+
+`topics`
+
+* topic category
+* parent topic category
+* tokenized document
+
+`industries`
+
+* industries category
+* 2nd-level category (10 category expressed by 2 character)
+* tokenized document
+
+`region`
+
+* region
+* tokenized document
+
+**Citation/License**
+
+* Lewis, D. D.; Yang, Y.; Rose, T.; and Li, F. [RCV1: A New Benchmark Collection for Text Categorization Research](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf). Journal of Machine Learning Research, 5:361-397, 2004.
+
+Because of the agreement of RCV1 CD-ROMs from Reuters, the original data should not  be reconstructed. So the dataset removes the large stop words and replace the remaining words with stems, and scramble the order of the stems.
+
+Please refer the detail on the [official site](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm).
+
+
+## Language Modeling
+
+### [Penn Tree Bank](https://github.com/tomsercu/lstm)
+
+The original [Penn Tree Bank](http://aclweb.org/anthology/J93-2004) has linguistic structure annotations (and it is not free).  
+So here offers the variant dataset from [tomsercu/lstm](https://github.com/tomsercu/lstm),
+that omits the annotation and splited to train/valid/test dataset.
+
+If you want to download this dataset, please use below class.
+
+* `PTB`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
+
+```py
+>>> import chazutsu
+>>> r = chazutsu.datasets.PTB().download()
+>>> r_idx = r.to_indexed().make_vocab(min_word_count=5)
+>>> r_idx.train_data().head(3)
+                                            sentence
+0  [6630, 6285, 8065, 8641, 2376, 8642, 7059, 864...
+1  [9161, 1, 2, 74, 400, 34, 2148, 0, 145, 18, 5,...
+2  [22, 1, 12, 141, 3, 1, 27, 2506, 0, 2976, 1600...
+>>> r_idx.train_data()["sentence"].map(r_idx.ids_to_words).head(3)
+0    [aer, banknote, berlitz, calloway, centrust, c...
+1    [pierre, unk, N, years, old, will, join, the, ...
+2    [mr, unk, is, chairman, of, unk, n, v, the, du...
+Name: sentence, dtype: object
+```
+
+
+**Citation/License**
+
+* Apache License 2.0
+* [RECURRENT NEURAL NETWORK REGULARIZATION](https://arxiv.org/pdf/1409.2329v4.pdf)
+
+### [WikiText-2](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
+
+WikiText-2 is the language modeling dataset that is larger than PTB (over 2 times!).  
+This dataset is created from Wikipedia articles that are verified Good and Featured.
+
+If you want to download this dataset, please use below class.
+
+* `WikiText2`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
+
+**Citation/License**
+
+* Creative Commons Attribution-ShareAlike License
+* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
+
+
+### [WikiText-103](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
+
+WikiText-2 is the language modeling dataset that is larger than PTB (over 110 times!).  
+This dataset is created from Wikipedia articles that are verified Good and Featured.
+
+If you want to download this dataset, please use below class.
+
+* `WikiText103`
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
+
+**Citation/License**
+
+* Creative Commons Attribution-ShareAlike License
+* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
+
+### [text8](http://mattmahoney.net/dc/textdata)
+
+This dataset offers cleaned enwik9. The enwik9 is the first 10^9 bytes of the English Wikipedia dump on Mar. 3, 2006.  
+The text8 is compressed version of enwik9 by discarding the outside of the <text> tag, removing some tags and so on (you can confirm these process on the official site (enwik9 -> 17compressors -> fil9 -> extra 8 compressors -> text8!).
+
+If you want to download this dataset, please use below class.
+
+* `Text8`
+* `Text8.ja()`: it from [ja.text8](https://github.com/Hironsan/ja.text8)
+
+In this dataset, `test_size` is treated as bytes (mega byte) for splitting the file. Default is 10Mb accordings to [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
+
+**Dataset File format**
+
+It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.  
+I recommend to set `min_word_count` 5, same as [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
+
+**Citation/License?**
+
+* [Large Text Compression Benchmark](http://mattmahoney.net/dc/text.html)
+* [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753)
+  * If you use this dataset, it'll be good to preprocess the data according to this paper.
+
+
+## Textual entailment
+
+### [The Multi-Genre Natural Language Inference (MultiNLI)](http://www.nyu.edu/projects/bowman/multinli/)
 
 This dataset offers 433k sentence pairs that have textual entailment annotation. And there are multiple genres like Fiction, Letters,
 Telephone Speech, and so on.
@@ -139,169 +330,3 @@ If you set the `full=False`, item enclosed in parentheses is excluded.
 **Citation/License**
 
 Adina Williams, Nikita Nangia, Samuel R. Bowman. [A Broad-Coverage Challenge Corpus for Sentence Understanding through Inference](https://arxiv.org/abs/1704.05426), EMNLP 2017
-
-## [20 Newsgroups](http://qwone.com/~jason/20Newsgroups/)
-
-This dataset offers 20 newsgroups collection. Some of the categories are related, so these partitioned by 6 group.
-
-* comp: comp.graphics, comp.os.ms-windows.misc, comp.sys.ibm.pc.hardware, comp.sys.mac.hardware, comp.windows.x
-* rec: rec.autos, rec.motorcycles, rec.sport.baseball, rec.sport.hockey
-* sci: sci.crypt, sci.electronics, sci.med, sci.space
-* misc: misc.forsale
-* politics: talk.politics.misc, talk.politics.guns, talk.politics.mideast
-* religion: talk.religion.misc, alt.atheism, soc.religion.christian
-
-For example, `alt.atheism` and `talk.religion.misc`, `comp.windows.x` and `comp.graphics` are close, `rec.sport.baseball` and `sci.crypt` is far.
-
-If you want to download this dataset, please use below class.
-
-* `NewsGroup20`: the version that excludes duplicates and includes only "From" and "Subject" headers.
-
-**Dataset File format**
-
-* group
-* group category
-* subject(Subject)
-* author(From)
-* text
-
-**Citation/License?**
-
-* [Newsweeder: Learning to filter netnews](http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.22.6286)
-
-(could not find official cite & license)
-
-## [Reuters News Courpus (RCV1-v2)](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm)
-
-This dataset offers Reuters News articles that are categorized by topic, industries and region. It has 23,149 train and 781,265 test documents.
-
- If you want to download this dataset, please use below class.
-
-* `ReutersNews.topics`: download the topic annotated data
-* `ReutersNews.industries`: download the industries annotated data
-* `ReutersNews.region`: download the region annotated data
-
-*(You have to take care that the each document has multiple labels)*
-
-**Dataset File format**
-
-`topics`
-
-* topic category
-* parent topic category
-* tokenized document
-
-`industries`
-
-* industries category
-* 2nd-level category (10 category expressed by 2 character)
-* tokenized document
-
-`region`
-
-* region
-* tokenized document
-
-**Citation/License**
-
-* Lewis, D. D.; Yang, Y.; Rose, T.; and Li, F. [RCV1: A New Benchmark Collection for Text Categorization Research](http://www.jmlr.org/papers/volume5/lewis04a/lewis04a.pdf). Journal of Machine Learning Research, 5:361-397, 2004.
-
-Because of the agreement of RCV1 CD-ROMs from Reuters, the original data should not  be reconstructed. So the dataset removes the large stop words and replace the remaining words with stems, and scramble the order of the stems.
-
-Please refer the detail on the [official site](http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm).
-
-
-## [Penn Tree Bank](https://github.com/tomsercu/lstm)
-
-The original [Penn Tree Bank](http://aclweb.org/anthology/J93-2004) has linguistic structure annotations (and it is not free).  
-So here offers the variant dataset from [tomsercu/lstm](https://github.com/tomsercu/lstm),
-that omits the annotation and splited to train/valid/test dataset.
-
-If you want to download this dataset, please use below class.
-
-* `PTB`
-
-**Dataset File format**
-
-It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
-
-```py
->>> import chazutsu
->>> r = chazutsu.datasets.PTB().download()
->>> r_idx = r.to_indexed().make_vocab(min_word_count=5)
->>> r_idx.train_data().head(3)
-                                            sentence
-0  [6630, 6285, 8065, 8641, 2376, 8642, 7059, 864...
-1  [9161, 1, 2, 74, 400, 34, 2148, 0, 145, 18, 5,...
-2  [22, 1, 12, 141, 3, 1, 27, 2506, 0, 2976, 1600...
->>> r_idx.train_data()["sentence"].map(r_idx.ids_to_words).head(3)
-0    [aer, banknote, berlitz, calloway, centrust, c...
-1    [pierre, unk, N, years, old, will, join, the, ...
-2    [mr, unk, is, chairman, of, unk, n, v, the, du...
-Name: sentence, dtype: object
-```
-
-
-**Citation/License**
-
-* Apache License 2.0
-* [RECURRENT NEURAL NETWORK REGULARIZATION](https://arxiv.org/pdf/1409.2329v4.pdf)
-
-## [WikiText-2](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
-
-WikiText-2 is the language modeling dataset that is larger than PTB (over 2 times!).  
-This dataset is created from Wikipedia articles that are verified Good and Featured.
-
-If you want to download this dataset, please use below class.
-
-* `WikiText2`
-
-**Dataset File format**
-
-It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
-
-**Citation/License**
-
-* Creative Commons Attribution-ShareAlike License
-* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
-
-
-## [WikiText-103](https://metamind.io/research/the-wikitext-long-term-dependency-language-modeling-dataset/)
-
-WikiText-2 is the language modeling dataset that is larger than PTB (over 110 times!).  
-This dataset is created from Wikipedia articles that are verified Good and Featured.
-
-If you want to download this dataset, please use below class.
-
-* `WikiText103`
-
-**Dataset File format**
-
-It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.
-
-**Citation/License**
-
-* Creative Commons Attribution-ShareAlike License
-* Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher. 2016. [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843)
-
-## [text8](http://mattmahoney.net/dc/textdata)
-
-This dataset offers cleaned enwik9. The enwik9 is the first 10^9 bytes of the English Wikipedia dump on Mar. 3, 2006.  
-The text8 is compressed version of enwik9 by discarding the outside of the <text> tag, removing some tags and so on (you can confirm these process on the official site (enwik9 -> 17compressors -> fil9 -> extra 8 compressors -> text8!).
-
-If you want to download this dataset, please use below class.
-
-* `Text8`
-
-In this dataset, `test_size` is treated as bytes (mega byte) for splitting the file. Default is 10Mb accordings to [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
-
-**Dataset File format**
-
-It downloads raw text file. You can tokenize it by `to_indexed()` nad `make_vocab` method.  
-I recommend to set `min_word_count` 5, same as [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753).
-
-**Citation/License?**
-
-* [Large Text Compression Benchmark](http://mattmahoney.net/dc/text.html)
-* [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753)
-  * If you use this dataset, it'll be good to preprocess the data according to this paper.

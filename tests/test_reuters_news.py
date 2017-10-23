@@ -1,9 +1,8 @@
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import shutil
 import unittest
-import requests
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
 
 

@@ -46,7 +46,7 @@ Done all process! Make below files at /your/current/directory/data/moview_review
 
 * You can access the dataset from [pandas](http://pandas.pydata.org/) DataFrame (Of course you can read the file from its path)
 * You can use `sample_count` parameter to watch the data without opening the huge size of file
-* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets)
+* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu)
 
 When dealing with the text data, tokenization and word-to-id process is fundamental process. **chazutsu** supports it.
 
@@ -90,20 +90,3 @@ jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
 pip install chazutsu
 ```
-
-# Supported Dataset
-
-* Sentiment Analysis
-  * [Movie Review Data](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#movie-review-data)
-  * [Customer Review Datasets](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#customer-review-datasets)
-  * [Large Movie Review Dataset(IMDB)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#large-movie-review-datasetimdb)
-* Textual entailment
-  * [The Multi-Genre Natural Language Inference (MultiNLI)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#the-multi-genre-natural-language-inference-multinli)
-* Text classification
-  * [20 Newsgroups](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#20-newsgroups)
-  * [Reuters News Courpus (RCV1-v2)](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#reuters-news-courpus-rcv1-v2)
-* Language Modeling
-  * [Penn Tree Bank](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#penn-tree-bank)
-  * [WikiText-2](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-2)
-  * [WikiText-103](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#wikitext-103)
-  * [text8](https://github.com/chakki-works/chazutsu/tree/master/chazutsu/datasets#text8)
