@@ -8,3 +8,6 @@ from .ptb import PTB
 from .wikitext2 import WikiText2
 from .wikitext103 import WikiText103
 from .text8 import Text8
+from .duc2003 import DUC2003
+from .duc2004 import DUC2004
+from .gigaword import Gigaword

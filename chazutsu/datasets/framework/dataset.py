@@ -125,15 +125,15 @@ class Dataset():
         # split to train & test
         self.train_test_split(prepared_file_path, test_size)
 
+        if not self.test_mode:
+            self.clear_trush()
+
         self.logger.info(
             "Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
             if f.startswith("."):
                 continue
             self.logger.info(" " + f)
-
-        if not self.test_mode:
-            self.clear_trush()
 
         r = self.make_resource(dataset_root)
 
@@ -223,6 +223,9 @@ class Dataset():
                 with open(p, "wb") as f:
                     for ln in g:
                         f.write(ln)
+
+        self.trush(compressed_file)
+
         return target
 
     def extract_file(self, compressed_file, relative_pathes):
