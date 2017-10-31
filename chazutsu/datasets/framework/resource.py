@@ -51,7 +51,7 @@ class Resource():
                 self._resource["data"] = p
                 self._resource_name = n
 
-        if "data" not in self._resource:
+        if "data" not in self._resource and "train" in self._resource:
             self._resource["data"] = self._resource["train"]
 
     @property

@@ -92,3 +92,5 @@ ENV/
 
 tests/data/
 data/
+.idea/
+chazutsu.iml

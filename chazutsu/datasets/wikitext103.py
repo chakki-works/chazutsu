@@ -23,18 +23,17 @@ class WikiText103(Dataset):
 
         return super().download(directory, False, 0, sample_count, force)
 
-    def extract(self, path):
-        dir, file_name = os.path.split(path)
-        self.extract_file(
-            path,
-            [
+    @property
+    def extract_targets(self):
+        return [
                 "wikitext-103/wiki.train.tokens",
                 "wikitext-103/wiki.test.tokens",
                 "wikitext-103/wiki.valid.tokens"
                 ]
-        )
 
-        train_file_path = os.path.join(dir, "wiki.train.tokens")
+    def prepare(self, dataset_root, extracted_path):
+        self.move_extracteds(dataset_root, extracted_path)
+        train_file_path = os.path.join(dataset_root, "wiki.train.tokens")
         return train_file_path
 
     def make_resource(self, data_root):

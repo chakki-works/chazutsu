@@ -1,5 +1,4 @@
 import os
-import tarfile
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
@@ -23,32 +22,23 @@ class IMDB(Dataset):
 
         return super().download(directory, shuffle, 0, sample_count, force)
 
-    def extract(self, path):
-        dir, file_name = os.path.split(path)
-        work_dir = os.path.join(dir, "tmp")
-        if not os.path.isdir(work_dir):
-            with tarfile.open(path) as t:
-                t.extractall(path=work_dir)
-
-        extracted_dir = os.path.join(work_dir, "aclImdb")
+    def prepare(self, dataset_root, extracted_path):
+        extracted_dir = os.path.join(extracted_path, "aclImdb")
         data_dirs = ["train", "test"]
         pathes = []
         for d in data_dirs:
             target_dir = os.path.join(extracted_dir, d)
-            file_path = os.path.join(dir, "imdb_" + d + ".txt")
+            file_path = os.path.join(dataset_root, "imdb_" + d + ".txt")
             self.label_by_dir(
                 file_path, target_dir, {"pos": 1, "neg": 0}, task_size=1000)
 
             pathes.append(file_path)
 
             if d == "train":
-                unlabeled = os.path.join(dir, "imdb_unlabeled.txt")
+                unlabeled = os.path.join(dataset_root, "imdb_unlabeled.txt")
                 self.label_by_dir(
                     unlabeled, target_dir, {"unsup": None}, task_size=1000)
                 pathes.append(unlabeled)
-
-        self.remove(path)
-        self.remove(work_dir)
 
         return pathes[0]
 

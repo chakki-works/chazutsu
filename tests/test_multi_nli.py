@@ -1,9 +1,8 @@
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import shutil
 import unittest
-import requests
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
 from chazutsu.datasets.multi_nli import MultiNLI
 
@@ -17,9 +16,7 @@ class TestMultiNLI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         multi_nli = MultiNLI()
-        if not os.path.exists(cls.PATH):
-            os.mkdir(cls.PATH)
-            multi_nli.save_dataset(cls.PATH)
+        dataset_root, extracted = multi_nli.save_and_extract(cls.PATH)
 
     @classmethod
     def tearDownClass(cls):
@@ -33,14 +30,15 @@ class TestMultiNLI(unittest.TestCase):
         self.assertEqual(len(values), len(multi_nli.columns))
         print(values)
 
-    def test_extract(self):
+    def test_prepare(self):
         multi_nli = MultiNLI()
-        file_path = os.path.join(self.PATH, multi_nli._get_file_name(None))
-        train_file = multi_nli.extract(file_path)
+        dataset_root, extracted = multi_nli.save_and_extract(self.PATH)
+        train_file = multi_nli.prepare(dataset_root, extracted)
         self.assertTrue(train_file)
+        multi_nli.clear_trush()
 
     def test_tokenize(self):
-        r = chazutsu.datasets.MultiNLI.matched().download(directory=DATA_ROOT)
+        r = chazutsu.datasets.MultiNLI.matched().download(directory=self.PATH)
         r_id = r.to_indexed().make_vocab(min_word_count=5)
 
         train_ids = r_id.train_data()

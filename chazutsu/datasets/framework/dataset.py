@@ -33,14 +33,12 @@ class Dataset():
         self.site_url = site_url
         self.download_url = download_url
         self.description = description
-        # When test_mode = True
-        # 1. Use the test_url
-        # 2. Don't skip any process
-        # 3. Don't remove the file
+        # When test_mode = True, use the test_url
         self.test_mode = False
         self.test_download_url = test_download_url
         if not self.test_download_url:
             self.test_download_url = download_url
+        self.__trush = []
 
         # create logger
         from logging import getLogger, StreamHandler, DEBUG
@@ -53,19 +51,30 @@ class Dataset():
             self.logger.setLevel(_level)
             self.logger.addHandler(handler)
 
-    def download(self,
-                 directory="", shuffle=True, test_size=0.3, sample_count=0,
-                 force=False):
+    @property
+    def root_name(self):
+        return self.name.lower().replace(" ", "_")
+    
+    @property
+    def extract_targets(self):
+        return ()
+
+    def on_test(self):
+        self.test_mode = True
+        return self
+
+    def get_dataset_root(self, directory):
+        return os.path.join(directory, self.root_name)
+
+    def get_extracted_path(self, compressed_file):
+        dataset_root, file_name = os.path.split(compressed_file)
+        return os.path.join(dataset_root, "_extracted")
+
+    def save_and_extract(self, directory="", force=False):
         _dir = self.check_directory(directory)
-        dataset_root = os.path.join(_dir, self._get_root_name())
+        dataset_root = self.get_dataset_root(_dir)
         if not os.path.isdir(dataset_root):
             os.mkdir(dataset_root)
-        elif not force and not self.test_mode:
-            # data_root already exists and have contents
-            self.logger.info(
-                "Read resource from the existed resource" \
-                "(if you want to retry, set force=True).")
-            return self.make_resource(dataset_root)
 
         # download and save file
         save_file_path = self.save_dataset(dataset_root)
@@ -73,25 +82,58 @@ class Dataset():
         # extract dataset file from saved file
         extracted_file_path = self.extract(save_file_path)
 
+        self.trush(save_file_path)
+        self.trush(extracted_file_path)
+        return dataset_root, extracted_file_path
+
+    def download(self,
+                 directory="", shuffle=True, test_size=0.3, sample_count=0,
+                 force=False):
+        _dir = self.check_directory(directory)
+        dataset_root = self.get_dataset_root(_dir)
+        save_file_path = os.path.join(dataset_root, self._get_file_name(None))
+        if os.path.isdir(dataset_root) and not os.path.exists(save_file_path) \
+           and (not force and not self.test_mode):
+            r = self.make_resource(dataset_root)
+            if len(r._resource) > 0:
+                # data_root already exists and have contents
+                self.logger.info(
+                    "Read resource from the existed resource"
+                    "(if you want to retry, set force=True).")
+                return self.make_resource(dataset_root)
+
+        dataset_root, extracted_path = self.save_and_extract(
+            directory, force)
+
+        prepared_file_path = self.prepare(dataset_root, extracted_path)
+
+        if not self.test_mode:
+            self.clear_trush()
+
         if shuffle:
             self.logger.info("Shuffle the extracted dataset.")
             lines = []
-            with open(extracted_file_path, encoding="utf-8") as f:
+            with open(prepared_file_path, encoding="utf-8") as f:
                 lines = f.readlines()
             random.shuffle(lines)
-            with open(extracted_file_path, "w", encoding="utf-8") as f:
+            with open(prepared_file_path, "w", encoding="utf-8") as f:
                 f.writelines(lines)
 
         # make sample file
-        self.make_samples(extracted_file_path, sample_count)
+        self.make_samples(prepared_file_path, sample_count)
 
         # split to train & test
-        self.train_test_split(extracted_file_path, test_size)
+        self.train_test_split(prepared_file_path, test_size)
 
         self.logger.info(
             "Done all process! Make below files at {}".format(dataset_root))
         for f in os.listdir(dataset_root):
+            if f.startswith("."):
+                continue
             self.logger.info(" " + f)
+
+        if not self.test_mode:
+            self.clear_trush()
 
         r = self.make_resource(dataset_root)
 
@@ -105,18 +147,18 @@ class Dataset():
         else:
             return None
 
-    def _get_root_name(self):
-        return self.name.lower().replace(" ", "_")
-
     def check_directory(self, directory):
         if os.path.isdir(directory):
             return directory
+        elif len(directory) > 0:
+            os.mkdir(directory)
+            return directory
         else:
             current = os.getcwd()
-            self.logger.info(
-                "Make directory for download at {}.".format(current))
             data_dir = os.path.join(current, "data")
             if not os.path.isdir(data_dir):
+                self.logger.info(
+                    "Make directory for download at {}.".format(current))
                 os.mkdir(data_dir)
             return data_dir
 
@@ -146,53 +188,103 @@ class Dataset():
             for data in xtqdm(resp.iter_content(chunk_size=chunk_size),
                               total=limit, unit="B", unit_scale=True):
                 f.write(data)
-        
+
         return save_file_path
-    
-    def extract(self, path):
-        # you may unpack the file and extract data file.
-        return path
-    
-    def extract_file(self, path, relative_pathes):
+
+    def extract(self, compressed_file):
+        target = self.get_extracted_path(compressed_file)
+        if len(self.extract_targets) == 0:
+            self.extractall(compressed_file)
+        else:
+            self.extract_file(compressed_file, self.extract_targets)
+
+        return target
+
+    def extractall(self, compressed_file):
+        target = self.get_extracted_path(compressed_file)
+        if os.path.exists(target):
+            self.logger.info("The file already expanded.")
+            return target
+        else:
+            os.mkdir(target)
+
+        if zipfile.is_zipfile(compressed_file):
+            with zipfile.ZipFile(compressed_file) as z:
+                z.extractall(path=target)
+        elif tarfile.is_tarfile(compressed_file):
+            with tarfile.open(compressed_file) as t:
+                t.extractall(path=target)
+        elif compressed_file.endswith(".gz"):
+            os.mkdir(target)
+            with gzip.open(compressed_file, "rb") as g:
+                file_name = os.path.basename(compressed_file)
+                file_base, _ = os.path.splitext(file_name)
+                p = os.path.join(target, file_base)
+                with open(p, "wb") as f:
+                    for ln in g:
+                        f.write(ln)
+        return target
+
+    def extract_file(self, compressed_file, relative_pathes):
         # unpack the archive file and extract directed path file
-        base, _ = os.path.splitext(path)
+        base = self.get_extracted_path(compressed_file)
+        if os.path.exists(base):
+            self.logger.info("The file already expanded.")
+            return base
+        else:
+            os.mkdir(base)
         is_path_lists = isinstance(relative_pathes, (tuple, list))
         target = relative_pathes if is_path_lists else [relative_pathes]
 
         extracteds = []
-        if zipfile.is_zipfile(path):
-            with zipfile.ZipFile(path) as z:
+        if zipfile.is_zipfile(compressed_file):
+            with zipfile.ZipFile(compressed_file) as z:
                 for n in filter(lambda n: n in target, z.namelist()):
                     file_name = os.path.basename(n)
-                    p = os.path.join(os.path.dirname(path), file_name)
+                    p = os.path.join(base, file_name)
                     with open(p, "wb") as f:
                         f.write(z.read(n))
                     extracteds.append(p)
 
-        elif tarfile.is_tarfile(path):
-            with tarfile.open(path) as t:
+        elif tarfile.is_tarfile(compressed_file):
+            with tarfile.open(compressed_file) as t:
                 for m in filter(lambda m: m in target, t.getnames()):
                     file_name = os.path.basename(m)
-                    p = os.path.join(os.path.dirname(path), file_name)
+                    p = os.path.join(base, file_name)
                     with open(p, "wb") as f:
                         with t.extractfile(m) as tf:
                             for c in tf:
                                 f.write(c)
                     extracteds.append(p)
-        
-        elif path.endswith(".gz"):
-            with gzip.open(path, "rb") as g:
-                p = os.path.join(os.path.dirname(path), relative_pathes[0])
+
+        elif compressed_file.endswith(".gz"):
+            with gzip.open(compressed_file, "rb") as g:
+                p = os.path.join(base, relative_pathes[0])
                 extracteds.append(p)
                 with open(p, "wb") as f:
                     for ln in g:
                         f.write(ln)
 
         # remove downloaded raw file (zip/tar.gz etc)
-        self.remove(path)
+        self.trush(compressed_file)
 
         return extracteds
     
+    def prepare(self, dataset_root, extracted_path):
+        return extracted_path
+
+    def move_extracteds(self, dataset_root, extracted_path, filter=""):
+        moveds = []
+        for e in self.extract_targets:
+            if filter and filter not in e:
+                continue
+            file_name = os.path.basename(e)
+            s = os.path.join(extracted_path, file_name)
+            t = os.path.join(dataset_root, file_name)
+            shutil.move(s, t)
+            moveds.append(t)
+        return moveds
+
     def label_by_dir(self, file_path, target_dir, dir_and_label, task_size=10):
         label_dirs = dir_and_label.keys()
         dirs = [d for d in os.listdir(target_dir)
@@ -272,7 +364,7 @@ class Dataset():
              test_count / total_count * 100)
             )
 
-        self.remove(original_file_path)
+        self.trush(original_file_path)
 
         return train_test_path
 
@@ -333,16 +425,18 @@ class Dataset():
                 count += 1
         return count
 
-    def remove(self, path):
-        if self.test_mode:
-            return
-        if not os.path.exists(path):
-            return
-        else:
-            if os.path.isfile(path):
-                os.remove(path)
-            if os.path.isdir(path):
-                shutil.rmtree(path)
+    def trush(self, path):
+        self.__trush.append(path)
+
+    def clear_trush(self):
+        for t in self.__trush:
+            if not os.path.exists(t):
+                continue
+            else:
+                if os.path.isfile(t):
+                    os.remove(t)
+                if os.path.isdir(t):
+                    shutil.rmtree(t)
 
     def show(self):
         print("About {}".format(self.name))

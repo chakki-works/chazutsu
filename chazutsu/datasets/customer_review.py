@@ -1,6 +1,4 @@
 import os
-import re
-import zipfile
 from tqdm import tqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
@@ -42,15 +40,21 @@ class CustomerReview(Dataset):
     def more3(cls):
         return CustomerReview("more3")
 
-    def extract(self, path):
+    @property
+    def root_name(self):
+        return self.name.lower().replace(" ", "_") + "_" + self.kind
+
+    def prepare(self, dataset_root, extracted_path):
         if self.kind == "products5":
-            return self._extract_products5(path)
+            return self._prepare_products5(dataset_root, extracted_path)
         elif self.kind == "additional9":
-            return self._extract_additional9(path)
+            return self._prepare_additional9(dataset_root, extracted_path)
         elif self.kind == "more3":
-            return self._extract_more3(path)
+            return self._prepare_more3(dataset_root, extracted_path)
         else:
             raise Exception("The kind {} is not supported.".format(self.kind))
+
+        return extracted_path
 
     def make_resource(self, data_root):
         return Resource(
@@ -58,23 +62,17 @@ class CustomerReview(Dataset):
                 columns=["sentence-type", "polarity", "detail", "review"],
                 target="polarity")
 
-    def _extract_products5(self, path):
-        _dir, file_name = os.path.split(path)
-        work_dir = os.path.join(_dir, "tmp")
-        products5_path = os.path.join(_dir, "products5.txt")
-
-        with zipfile.ZipFile(path) as z:
-            z.extractall(path=work_dir)
-
-        review_path = os.path.join(work_dir, "customer review data")
+    def _prepare_products5(self, dataset_root, extracted_path):
+        products5_path = os.path.join(dataset_root, "products5.txt")
+        source = os.path.join(extracted_path, "customer review data")
         with open(products5_path, mode="wb") as f:
-            for txt in os.listdir(review_path):
+            for txt in os.listdir(source):
                 if txt == "Readme.txt":
                     continue
 
                 self.logger.info("Extracting {} data.".format(txt))
                 skipped = []
-                p = os.path.join(review_path, txt)
+                p = os.path.join(source, txt)
                 total = self.get_line_count(p)
                 with open(p, encoding="utf-8") as rv:
                     for ln in tqdm(rv, total=total):
@@ -88,36 +86,26 @@ class CustomerReview(Dataset):
 
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped " \
+                        " {} lines is skipped "
                         "because annotation format is incorrect.".format(
                           len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
-        # remove files
-        self.remove(path)
-        self.remove(work_dir)
-
         return products5_path
 
-    def _extract_additional9(self, path):
-        dir, file_name = os.path.split(path)
-        work_dir = os.path.join(dir, "tmp")
-        additional9_path = os.path.join(dir, "additional9.txt")
-
-        with zipfile.ZipFile(path) as z:
-            z.extractall(path=work_dir)
-
-        review_path = os.path.join(work_dir, "Reviews-9-products")
+    def _prepare_additional9(self, dataset_root, extracted_path):
+        additional9_path = os.path.join(dataset_root, "additional9.txt")
+        source = os.path.join(extracted_path, "Reviews-9-products")
         with open(additional9_path, mode="wb") as f:
-            for txt in os.listdir(review_path):
+            for txt in os.listdir(source):
                 if txt == "Readme.txt":
                     continue
 
                 self.logger.info("Extracting {} data.".format(txt))
                 skipped = []
-                p = os.path.join(review_path, txt)
+                p = os.path.join(source, txt)
                 total = self.get_line_count(p)
                 with open(p, encoding="utf-8", errors="replace") as rv:
                     for ln in tqdm(rv, total=total):
@@ -131,29 +119,19 @@ class CustomerReview(Dataset):
 
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped because " \
+                        " {} lines is skipped because "
                         "annotation format is incorrect.".format(len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
 
-        # remove files
-        self.remove(path)
-        self.remove(work_dir)
-
         return additional9_path
 
-    def _extract_more3(self, path):
-        dir, file_name = os.path.split(path)
-        work_dir = os.path.join(dir, "tmp")
-        more3_path = os.path.join(dir, "more3.txt")
-
-        with zipfile.ZipFile(path) as z:
-            z.extractall(path=work_dir)
-
-        review_path = os.path.join(work_dir, "CustomerReviews-3domains(IJCAI2015)")
+    def _prepare_more3(self, dataset_root, extracted_path):
+        more3_path = os.path.join(dataset_root, "more3.txt")
+        source = os.path.join(extracted_path, "CustomerReviews-3domains(IJCAI2015)")
         with open(more3_path, mode="wb") as f:
-            for txt in os.listdir(review_path):
+            for txt in os.listdir(source):
                 if txt == "Readme.txt":
                     continue
 
@@ -162,7 +140,7 @@ class CustomerReview(Dataset):
 
                 self.logger.info("Extracting {} data.".format(txt))
                 skipped = []
-                p = os.path.join(review_path, txt)
+                p = os.path.join(source, txt)
                 total = self.get_line_count(p)
                 with open(p, encoding="utf-8") as rv:
                     for ln in tqdm(rv, total=total):
@@ -176,15 +154,11 @@ class CustomerReview(Dataset):
 
                 if len(skipped) > 0:
                     self.logger.warning(
-                        " {} lines is skipped because " \
+                        " {} lines is skipped because "
                         "annotation format is incorrect.".format(len(skipped)))
                     self.logger.debug(
                         "\n".join(map(lambda s: " >>{}".format(s), skipped))
                         )
-
-        # remove files
-        self.remove(path)
-        self.remove(work_dir)
 
         return more3_path
 

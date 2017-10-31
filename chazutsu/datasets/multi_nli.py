@@ -56,29 +56,36 @@ class MultiNLI(Dataset):
     def mismatched(cls, full=False):
         return MultiNLI(False, full)
 
-    def extract(self, path):
-        dir, file_name = os.path.split(path)
-        kind = "matched" if self.matched else "mismatched"
-        extracteds = self.extract_file(
-            path,
-            [
-                "multinli_0.9_jsonl/multinli_0.9_train.jsonl",
-                "multinli_0.9_jsonl/multinli_0.9_{}_dev.jsonl".format(kind),
-                "multinli_0.9_jsonl/multinli_0.9_{}_unlabeled_test.jsonl".format(kind)  # noqa
-            ]
-        )
+    @property
+    def kind(self):
+        return "matched" if self.matched else "mismatched"
 
+    @property
+    def root_name(self):
+        return self.name.lower().replace(" ", "_") + "_" + self.kind
+
+    @property
+    def extract_targets(self):
+        return [
+                "multinli_0.9_jsonl/multinli_0.9_train.jsonl",
+                "multinli_0.9_jsonl/multinli_0.9_{}_dev.jsonl".format(self.kind),  # noqa
+                "multinli_0.9_jsonl/multinli_0.9_{}_unlabeled_test.jsonl".format(self.kind)  # noqa
+            ]
+
+    def prepare(self, dataset_root, extracted_path):
         train_file = ""
-        for e in extracteds:
-            preprocessed = self.preprocess_file(e)
-            self.remove(e)
+        for e in self.extract_targets:
+            p = os.path.join(extracted_path, os.path.basename(e))
+            preprocessed = self.preprocess_file(dataset_root, p)
             if "_train" in preprocessed:
                 train_file = preprocessed
+            self.trush(p)
 
         return train_file
 
-    def preprocess_file(self, path):
-        write_file_path = path.replace(".jsonl", ".txt")
+    def preprocess_file(self, dataset_root, path):
+        write_file_name = os.path.basename(path).replace(".jsonl", ".txt")
+        write_file_path = os.path.join(dataset_root, write_file_name)
         write_file = open(write_file_path, mode="w", encoding="utf-8")
         file_kind = path.split("_")[-1]
 

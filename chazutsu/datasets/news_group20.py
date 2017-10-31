@@ -1,6 +1,5 @@
 import os
 import re
-import tarfile
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
@@ -19,16 +18,9 @@ class NewsGroup20(Dataset):
         self.group_filter = group_filter
         self._mail_pattern = re.compile("[\w|\.]+@[\w|\.]+")
 
-    def extract(self, path):
-        dir, file_name = os.path.split(path)
-        work_dir = os.path.join(dir, "tmp")
-        newsgroup20_path = os.path.join(dir, "newsgroup20.txt")
-
-        if not os.path.isdir(work_dir):
-            with tarfile.open(path) as t:
-                t.extractall(path=work_dir)
-
-        dataset_path = os.path.join(work_dir, "20news-18828")
+    def prepare(self, dataset_root, extracted_path):
+        newsgroup20_path = os.path.join(dataset_root, "newsgroup20.txt")
+        dataset_path = os.path.join(extracted_path, "20news-18828")
         with open(newsgroup20_path, mode="wb") as f:
             for gp in os.listdir(dataset_path):
                 group_path = os.path.join(dataset_path, gp)
@@ -51,10 +43,6 @@ class NewsGroup20(Dataset):
                         text
                     ]) + "\n"
                     f.write(ln.encode("utf-8"))
-
-        # remove files
-        self.remove(path)
-        self.remove(work_dir)
 
         return newsgroup20_path
 

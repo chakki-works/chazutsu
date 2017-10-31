@@ -8,7 +8,9 @@ import chazutsu.datasets
 from chazutsu.datasets.customer_review import ReviewSentence
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
+DATA_ROOT = os.path.join(os.path.dirname(__file__), "data/cr")
+if not os.path.exists(DATA_ROOT):
+    os.mkdir(DATA_ROOT)
 
 
 class TestCustomerReview(unittest.TestCase):
@@ -35,11 +37,15 @@ class TestCustomerReview(unittest.TestCase):
                 self.assertEqual(-2, rs.polarity)
                 self.assertEqual("size_-2_u", rs.detail.split(",")[0])
 
-    def test_extract_products5(self):
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.isdir(DATA_ROOT):
+            shutil.rmtree(DATA_ROOT)
+
+    def test_prepare_products5(self):
         d = chazutsu.datasets.CustomerReview.products5()
-
-        file_path = self._download_file(d)
-        path = d._extract_products5(file_path)
+        root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d._prepare_products5(root, extracted)
 
         try:
             with open(path, encoding="utf-8") as f:
@@ -48,17 +54,15 @@ class TestCustomerReview(unittest.TestCase):
                     if len(els) != 4:
                         raise Exception("number of elements is not correct.")
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
+        d.trush(path)
+        d.clear_trush()
 
-        os.remove(path)
-
-    def test_extract_additional9(self):
+    def test_prepare_additional9(self):
         d = chazutsu.datasets.CustomerReview.additional9()
-
-        file_path = self._download_file(d)
-        path = d._extract_additional9(file_path)
+        root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d._prepare_additional9(root, extracted)
 
         try:
             with open(path, encoding="utf-8") as f:
@@ -67,17 +71,16 @@ class TestCustomerReview(unittest.TestCase):
                     if len(els) != 4:
                         raise Exception("number of elements is not correct.")
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
 
-        os.remove(path)
+        d.trush(path)
+        d.clear_trush()
 
-    def test_extract_more3(self):
+    def test_prepare_more3(self):
         d = chazutsu.datasets.CustomerReview.more3()
-
-        file_path = self._download_file(d)
-        path = d._extract_more3(file_path)
+        root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d._prepare_more3(root, extracted)
 
         try:
             with open(path, encoding="utf-8") as f:
@@ -86,27 +89,16 @@ class TestCustomerReview(unittest.TestCase):
                     if len(els) != 4:
                         raise Exception("number of elements is not correct.")
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
 
-        os.remove(path)
-    
+        d.trush(path)
+        d.clear_trush()
+
     def test_download(self):
         resource = chazutsu.datasets.CustomerReview.more3().download(DATA_ROOT)
         self.assertTrue(len(resource.data().columns), 4)
         shutil.rmtree(resource.root)
-
-    def _download_file(self, dataset):
-        url = dataset.download_url
-        file_path = os.path.join(DATA_ROOT, dataset.kind)
-        r = requests.get(url)
-
-        with open(file_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=128):
-                f.write(chunk)
-
-        return file_path
 
 
 if __name__ == "__main__":

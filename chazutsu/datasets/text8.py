@@ -36,28 +36,29 @@ class Text8(Dataset):
         self._test_size = test_size
         return super().download(directory, False, 0, sample_count, force)
 
-    def extract(self, path):
-        _dir, file_name = os.path.split(path)
+    @property
+    def extract_targets(self):
         inner_file = "text8" if self.kind == "en" else "ja.text8"
-        self.extract_file(path, [inner_file])
+        return [inner_file]
 
+    def prepare(self, dataset_root, extracted_path):
+        inner_file = self.extract_targets[0]
         target = "text8" if self.kind == "en" else "text8ja"
-        train_file_path = os.path.join(_dir, target + ".train.txt")
+        train_file_path = os.path.join(dataset_root, target + ".train.txt")
         if self._test_size == 0:
-            os.rename(os.path.join(_dir, inner_file), train_file_path)
+            os.rename(os.path.join(dataset_root, inner_file), train_file_path)
         else:
-            test_file_path = os.path.join(_dir, target + ".test.txt")
+            test_file_path = os.path.join(dataset_root, target + ".test.txt")
 
             line = ""
             test_byte = self._test_size * 1000000
-            with open(os.path.join(_dir, inner_file), encoding="utf-8") as f:
+            with open(os.path.join(extracted_path, inner_file),
+                      encoding="utf-8") as f:
                 line = f.readline().strip()
             with open(train_file_path, mode="w", encoding="utf-8") as train:
                 train.write(line[:-test_byte])
             with open(test_file_path, mode="w", encoding="utf-8") as test:
                 test.write(line[-test_byte:])
-
-            self.remove(os.path.join(_dir, inner_file))
 
         return train_file_path
 

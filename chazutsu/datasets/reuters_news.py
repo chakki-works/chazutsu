@@ -1,4 +1,6 @@
 import os
+import shutil
+import gzip
 from collections import namedtuple
 import requests
 from chazutsu.datasets.framework.xtqdm import xtqdm
@@ -51,25 +53,19 @@ class ReutersNews(Dataset):
     def regions(cls):
         return ReutersNews("regions")
 
-    def extract(self, path):
-        _dir, fname = os.path.split(path)
-        self.extract_file(
-            path,
-            [
-                "RCV1-v2/lyrl2004_tokens_train.csv", 
+    def get_extracted_path(self, compressed_file):
+        dataset_root, file_name = os.path.split(compressed_file)
+        return os.path.join(dataset_root, "_extracted_" + self.kind)
+
+    @property
+    def extract_targets(self):
+        return ["RCV1-v2/lyrl2004_tokens_train.csv", 
                 "RCV1-v2/lyrl2004_tokens_test.csv", 
-                "RCV1-v2/" + self.label_desc_file
-                ]
-        )
+                "RCV1-v2/" + self.label_desc_file]
 
-        label_file_path = os.path.join(_dir, self.label_file)
-        if not os.path.exists(label_file_path):
-            self.logger.info("Downloading the annotation file")
-            dl_file_path = label_file_path + ".gz"
-            self._download_file(self.label_url, dl_file_path)
-            label_file_path = self.extract_file(
-                dl_file_path, [self.label_file])[0]
-
+    def prepare(self, dataset_root, extracted_path):
+        label_file_path = self._get_annotation_file(dataset_root)
+        self.move_extracteds(dataset_root, extracted_path, self.label_desc_file)
         self.logger.info("Reading the annotation file")
         annotations = {}
         annotation_count = self.get_line_count(label_file_path)
@@ -82,14 +78,16 @@ class ReutersNews(Dataset):
                     annotations[document_id] += [cat]
                 else:
                     annotations[document_id] = [cat]
-        descs = ReutersNewsResource.read_descriptions(_dir, self.kind)
+        descs = ReutersNewsResource.read_descriptions(dataset_root, self.kind)
 
         self.logger.info("Make annotated file")
         pathes = []
         for t in ["train", "test"]:
-            file_path = os.path.join(_dir, "{}_{}.txt".format(self.kind, t))
+            file_path = os.path.join(dataset_root, 
+                                     "{}_{}.txt".format(self.kind, t))
             self.logger.info("Annotating the {} file".format(t))
-            data_path = os.path.join(_dir, "lyrl2004_tokens_{}.csv".format(t))
+            data_path = os.path.join(extracted_path, 
+                                     "lyrl2004_tokens_{}.csv".format(t))
             total_count = self.get_line_count(data_path)
 
             f = open(file_path, "w", encoding="utf-8")
@@ -101,30 +99,42 @@ class ReutersNews(Dataset):
                         if self.kind == "regions":
                             f.write("\t".join([ann, words]) + "\n")
                         else:
-                            ps = [descs[a].parent for a in annotations[doc_id]]
+                            ps = [descs[d].parent for d in annotations[doc_id]]
                             ps = [p for p in ps if p not in ["Root", "None"]]
                             ps = list(set(ps))
                             ps = " ".join(ps)
                             f.write("\t".join([ann, ps, words]) + "\n")
             f.close()
             pathes.append(file_path)
-            self.remove(data_path)
-        self.remove(label_file_path)
+            self.trush(data_path)
+        self.trush(label_file_path)
 
         return pathes[0]
 
-    def _download_file(self, url, file_path):
-        r = requests.get(url)
+    def _get_annotation_file(self, dataset_root):
+        label_file_path = os.path.join(dataset_root, self.label_file)
+        if os.path.exists(label_file_path):
+            return label_file_path
 
+        self.logger.info("Downloading the annotation file")
+        dl_file_path = label_file_path + ".gz"
+
+        r = requests.get(self.label_url)
         total_size = int(r.headers.get("content-length", 0))
-        with open(file_path, "wb") as f:
+        with open(dl_file_path, "wb") as f:
             chunk_size = 1024
             limit = total_size / chunk_size
             for data in xtqdm(r.iter_content(chunk_size=chunk_size),
                               total=limit, unit="B", unit_scale=True):
                 f.write(data)
+        
+        with gzip.open(dl_file_path, "rb") as g:
+            with open(label_file_path, "wb") as f:
+                for ln in g:
+                    f.write(ln)
 
-        return file_path
+        self.trush(dl_file_path)
+        return label_file_path
 
     def make_resource(self, data_root):
         return ReutersNewsResource(data_root, self.kind)
@@ -143,7 +153,7 @@ class ReutersNewsResource(Resource):
             target = "category"
         elif kind == "regions":
             columns = ["region", "words"]
-            target = "region"            
+            target = "region"
 
         super().__init__(
             root, 

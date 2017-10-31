@@ -1,22 +1,27 @@
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import shutil
 import unittest
-import requests
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
+DATA_ROOT = os.path.join(os.path.dirname(__file__), "data/mr")
+if not os.path.exists(DATA_ROOT):
+    os.mkdir(DATA_ROOT)
 
 
 class TestMovieReview(unittest.TestCase):
 
-    def test_extract_polarity(self):
-        d = chazutsu.datasets.MovieReview.polarity()
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.exists(DATA_ROOT):
+            shutil.rmtree(DATA_ROOT)
 
-        file_path = self._download_file(d)
-        path = d._extract_polarity(file_path)
+    def test_prepare_polarity(self):
+        d = chazutsu.datasets.MovieReview.polarity()
+        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d.prepare(dataset_root, extracted)
 
         pos = 0
         neg = 0
@@ -32,13 +37,11 @@ class TestMovieReview(unittest.TestCase):
                     else:
                         neg += 1
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
         count = d.get_line_count(path)
         
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+        d.clear_trush()
         os.remove(path)
         # pos=1000, neg=1000
         self.assertEqual(count, 2000)
@@ -47,9 +50,8 @@ class TestMovieReview(unittest.TestCase):
 
     def test_extract_polarity_v1(self):
         d = chazutsu.datasets.MovieReview.polarity_v1()
-
-        file_path = self._download_file(d)
-        path = d._extract_polarity_v1(file_path)
+        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d.prepare(dataset_root, extracted)
 
         pos = 0
         neg = 0
@@ -65,14 +67,11 @@ class TestMovieReview(unittest.TestCase):
                     else:
                         neg += 1
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
         count = d.get_line_count(path)
-        
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-        os.remove(path)
+
+        d.clear_trush()
         # pos=1000, neg=1000
         self.assertEqual(count, 5331 + 5331)
         self.assertEqual(pos, 5331)
@@ -80,9 +79,8 @@ class TestMovieReview(unittest.TestCase):
 
     def test_extract_rating(self):
         d = chazutsu.datasets.MovieReview.rating()
-
-        file_path = self._download_file(d)
-        path = d._extract_rating(file_path)
+        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d.prepare(dataset_root, extracted)
 
         try:
             with open(path, encoding="utf-8") as f:
@@ -91,23 +89,18 @@ class TestMovieReview(unittest.TestCase):
                     if len(els) != 2:
                         raise Exception("data file is not constructed by label and text.")
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
 
         count = d.get_line_count(path)
-        
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-        os.remove(path)
 
+        d.clear_trush()
         self.assertTrue(count > 0)
 
     def test_extract_subjectivity(self):
         d = chazutsu.datasets.MovieReview.subjectivity()
-
-        file_path = self._download_file(d)
-        path = d._extract_subjectivity(file_path)
+        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        path = d.prepare(dataset_root, extracted)
 
         sub = 0
         obj = 0
@@ -123,19 +116,16 @@ class TestMovieReview(unittest.TestCase):
                     else:
                         obj += 1
         except Exception as ex:
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+            d.clear_trush()
             self.fail(ex)
         count = d.get_line_count(path)
-        
-        if os.path.isfile(file_path):
-            os.remove(file_path)
-        os.remove(path)
+
+        d.clear_trush()
         # sub=5000, obj=5000
         self.assertEqual(count, 5000*2)
         self.assertEqual(sub, 5000)
         self.assertEqual(obj, 5000)
-    
+
     def test_download(self):
         resource = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
         target, data = resource.test_data(split_target=True)
@@ -150,17 +140,6 @@ class TestMovieReview(unittest.TestCase):
         print(train_idx["review"].map(resource_idx.ids_to_words).head(3))
 
         shutil.rmtree(resource.root)
-
-    def _download_file(self, dataset):
-        url = dataset.download_url
-        file_path = os.path.join(DATA_ROOT, dataset.kind)
-        r = requests.get(url)
-
-        with open(file_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=128):
-                f.write(chunk)
-
-        return file_path
 
 
 if __name__ == "__main__":
