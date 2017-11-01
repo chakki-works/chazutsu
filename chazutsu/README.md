@@ -14,6 +14,10 @@ Let me introduce supported dataset in chazutsu!
   * [WikiText-2](#wikitext-2)
   * [WikiText-103](#wikitext-103)
   * [text8](#text8)
+* Text Summarization
+  * [DUC2003](#duc-2003)
+  * [DUC2004](#duc-2004)
+  * [Gigaword](#gigaword)
 * Textual entailment
   * [The Multi-Genre Natural Language Inference (MultiNLI)](#the-multi-genre-natural-language-inference-multinli)
 
@@ -279,6 +283,84 @@ I recommend to set `min_word_count` 5, same as [Learning Longer Memory in Recurr
 * [Learning Longer Memory in Recurrent Neural Networks](https://arxiv.org/abs/1412.7753)
   * If you use this dataset, it'll be good to preprocess the data according to this paper.
 
+## Text Dummarization
+
+### [DUC2003](http://duc.nist.gov/duc2003/tasks.html)
+
+This task data consist of 624 news articles from the New York Times, Associated Press Wire, Xinhua News Agency (English version) services each paired with 4 different human-generated reference summaries (not actually headlines), that is roughly
+14 words.  
+The dataset in chazutsu is got from [harvardnlp/sent-summary](https://github.com/harvardnlp/sent-summary) that is used in ["A Neural Attention Model for Sentence Summarization"](http://aclweb.org/anthology/D15-1044). 
+
+If you want to download this dataset, please use below class.
+
+* `DUC2003`
+  * `summary_no`: It means which human-generated summary you use (0~3).
+
+**Dataset File format**
+
+* `news`
+* `summary`
+
+
+**Citation/License**
+
+* Paul Over, Hoa Dang, and Donna Harman. [Duc in context. Information Processing & Management](https://www.nist.gov/publications/duc-context). 43(6):1506–1520, 2007.
+* Alexander M Rush, Sumit Chopra, and Jason Weston. [A neural attention model for abstractive sentence summarization](http://aclweb.org/anthology/D15-1044).
+In EMNLP, 2015.
+
+
+### [DUC2004](http://duc.nist.gov/duc2004/tasks.html)
+
+This task data consist of 500 news articles from the New York Times and Associated Press Wire services each paired with 4 different human-generated reference summaries (not actually headlines), capped at 75 bytes (This data set is evaluation-only).  
+The dataset in chazutsu is got from [harvardnlp/sent-summary](https://github.com/harvardnlp/sent-summary) that is used in ["A Neural Attention Model for Sentence Summarization"](http://aclweb.org/anthology/D15-1044). 
+
+If you want to download this dataset, please use below class.
+
+* `DUC2004`
+  * `summary_no`: It means which human-generated summary you use (0~3).
+
+**Dataset File format**
+
+* `news`
+* `summary`
+
+**Citation/License**
+
+* Paul Over, Hoa Dang, and Donna Harman. [Duc in context. Information Processing & Management](https://www.nist.gov/publications/duc-context). 43(6):1506–1520, 2007.
+* Alexander M Rush, Sumit Chopra, and Jason Weston. [A neural attention model for abstractive sentence summarization](http://aclweb.org/anthology/D15-1044).
+In EMNLP, 2015.
+
+### [Gigaword](https://catalog.ldc.upenn.edu/ldc2003t05)
+
+Original Gigaword has around 4 million articles. The dataset in chazutsu is *subset & preprocessed version* from [harvardnlp/sent-summary](https://github.com/harvardnlp/sent-summary) that is used in ["A Neural Attention Model for Sentence Summarization"](http://aclweb.org/anthology/D15-1044). 
+
+* The dataset is based on annotated Gigaword (Graff et al., 2003), which consists of standard Gigaword, preprocessed with Stanford CoreNLP tools.
+* Pair the headline of each article with its first sentence to create input-summary pair. Then filter these by the following criteria.
+  * Remove all articles from the time-period of the DUC evaluation(maybe 1996-2000)
+  * Are there no non-stop-words in common?
+  * Does the title contain a byline or other extraneous editing marks?
+  * Does the title have a question mark or colon?
+* After filtering, basic preprocessing is applied.
+  * lower-casing
+  * replacing all digit characters with #
+  * replacing of word types seen less than 5 times with UNK
+
+Then it contains 1951 news-summary pairs.
+
+If you want to download this dataset, please use below class.
+
+* `Gigaword`
+
+**Dataset File format**
+
+* `news`
+* `summary`
+
+**Citation/License**
+
+* David Graff, Junbo Kong, Ke Chen, and Kazuaki Maeda. [English gigaword](https://catalog.ldc.upenn.edu/ldc2003t05). Linguistic Data Consortium, Philadelphia. 2003.
+* Alexander M Rush, Sumit Chopra, and Jason Weston. [A neural attention model for abstractive sentence summarization](http://aclweb.org/anthology/D15-1044).
+In EMNLP, 2015.
 
 ## Textual entailment
 
