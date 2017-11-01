@@ -15,8 +15,8 @@ Let me introduce supported dataset in chazutsu!
   * [WikiText-103](#wikitext-103)
   * [text8](#text8)
 * Text Summarization
-  * [DUC2003](#duc-2003)
-  * [DUC2004](#duc-2004)
+  * [DUC2003](#duc2003)
+  * [DUC2004](#duc2004)
   * [Gigaword](#gigaword)
 * Textual entailment
   * [The Multi-Genre Natural Language Inference (MultiNLI)](#the-multi-genre-natural-language-inference-multinli)
