@@ -1,75 +1,120 @@
 # chazutsu
 
-![chazutsu_top.PNG](./docs/chazutsu_top.PNG)
+![chazutsu_top.PNG](./docs/chazutsu_top.PNG)  
 *[photo from Kaikado, traditional Japanese chazutsu maker](http://www.kaikado.jp/english/goods/design.html)*
 
-Do you have trouble with finding & getting the  dataset for natural language processing?  
+chazutsu is the dataset downloader for NLP.
 
-For example
+```py
+>>> import chazutsu
+>>> r = chazutsu.datasets.IMDB().download()
+>>> r.train_data().head(5)
+```
+Then
 
-* exploring the dataset by googling
-* arrange the data for the model training 
-* tokenize the data then make vocabulary, convert to ids... :confounded:
+```
+   polarity  rating                                             review
+0         0       3  You'd think the first landing on the Moon woul...
+1         1       9  I took a flyer in renting this movie but I got...
+2         1      10  Sometimes I just want to laugh. Don't you? No ...
+3         0       2  I knew it wasn't gunna work out between me and...
+4         0       2  Sometimes I rest my head and think about the r...
+```
 
-Now **chazutsu** helps you from above problems.
+You can use chazutsu on Jupyter.
+
+## Install
+
+```
+pip install chazutsu
+```
+
+## Supported datasetd
+
+chazutsu supports various kinds of datasets!  
+**[Please see the details here!](https://github.com/chakki-works/chazutsu/tree/master/chazutsu)**
+
+* Sentiment Analysis
+  * Movie Review Data
+  * Customer Review Datasets
+  * Large Movie Review Dataset(IMDB)
+* Text classification
+  * 20 Newsgroups
+  * Reuters News Courpus (RCV1-v2)
+* Language Modeling
+  * Penn Tree Bank
+  * WikiText-2
+  * WikiText-103
+  * text8
+* Text Summarization
+  * DUC2003
+  * DUC2004
+  * Gigaword
+* Textual entailment
+  * The Multi-Genre Natural Language Inference (MultiNLI)
 
 
 # How it works
 
+chazutsu not only download the dataset, but execute expand archive file, shuffle, split, picking samples process also (You can disable the process by arguments if you don't need).
+
 ![chazutsu_process1.png](./docs/chazutsu_process1.png)
 
-**chazutsu** offers you not only downloading the dataest, but also shuffle, split, pick samples from it.
-
-```py
->>> import chazutsu
->>> r = chazutsu.datasets.MovieReview.polarity(shuffle=True, test_size=0.3, sample_count=100).download()
-Make directory for downloading the file to /your/current/directory
-Begin downloading the Moview Review Data dataset from http://www.cs.cornell.edu/people/pabo/movie-review-data/review_polarity.tar.gz.
-The dataset file is saved to /your/current/directory/data/moview_review_data/review_polarity.tar.gz
-...
-File is splited to review_polarity_train.txt & review_polarity_test.txt. Each records are 1400 & 600 (test_size=30.00%).
-...
-Make review_polarity_samples.txt by picking 100 records from original file.
-...
-Done all process! Make below files at /your/current/directory/data/moview_review_data
- review_polarity_test.txt
- review_polarity_train.txt
-
->>> r.train_data().head(5)
-   polarity                                             review
-0         0  plot : a little boy born in east germany ( nam...
-1         0  when i arrived in paris in june , 1992 , i was...
-2         0   idle hands  is distasteful , crass and deriva...
-3         0  phaedra cinema , the distributor of such never...
-4         0  one-sided " doom and gloom " documentary about...
+```
+r = chazutsu.datasets.MovieReview.polarity(shuffle=False, test_size=0.3, sample_count=100).download()
 ```
 
-* You can access the dataset from [pandas](http://pandas.pydata.org/) DataFrame (Of course you can read the file from its path)
-* You can use `sample_count` parameter to watch the data without opening the huge size of file
-* The supported dataset and its detail are described at [here](https://github.com/chakki-works/chazutsu/tree/master/chazutsu)
+* `shuffle`: The flag argument for executing shuffle or not(True/False).
+* `test_size`: The ratio of the test dataset (If dataset already prepares train and test dataset, this value is ignored).
+* `sample_count`: You can pick some samples from the dataset to avoid the editor freeze caused by the heavy text file.
+* `force`: Don't use cache, re-download the dataset.
 
-When dealing with the text data, tokenization and word-to-id process is fundamental process. **chazutsu** supports it.
+chazutsu supports fundamental process for tokenization.
 
 ![chazutsu_process2.png](./docs/chazutsu_process2.png)
 
 ```py
 >>> import chazutsu
 >>> r = chazutsu.datasets.MovieReview.subjectivity().download()
->>> r_idx = r.to_indexed().make_vocab(min_word_count=3)
->>> r_idx.train_data().head(3)
-   subjectivity                                             review
-0             0  [1840, 7, 516, 26, 566, 4, 25, 6997, 64, 8, 7,...
-1             0  [11, 1, 44, 1028, 20, 0, 7309, 2924, 3, 725, 8...
-2             1  [34, 436, 1, 918, 2, 7291, 45, 235, 0, 129, 58...
->>> r_idx.train_data()["review"].map(r_idx.ids_to_words).head(3)
-0    [cho, s, fans, are, sure, to, be, entertained,...
-1    [with, a, story, inspired, by, the, tumultuous...
-2    [they, lead, a, boring, and, unattractive, lif...
-Name: review, dtype: object
+>>> r.train_data().head(3)
 ```
 
-* You can use `to_indexed` to make indexed resource
-* You can set various parameters and custome tokenizer to execute `make_vocab`.
+Then
+
+```
+    subjectivity                                             review
+0             0  . . . works on some levels and is certainly wo...
+1             1  the hulk is an anger fueled monster with incre...
+2             1  when the skittish emma finds blood on her pill...
+```
+
+Now execute the tokenization.
+
+```py
+r_idx = r.to_indexed().make_vocab(min_word_count=3)
+r_idx.train_data().head(3)
+```
+
+Then
+
+```
+   subjectivity                                             review
+0             0  [240, 18, 73, 1824, 3, 7, 792, 306, 812, 30, 3...
+1             1  [1, 6841, 7, 15, 3052, 4179, 1470, 12, 1910, 9...
+2             1  [38, 1, 0, 2233, 142, 912, 18, 19, 0, 365, 116...
+```
+
+* `to_indexed`
+  * `vocab_resources`: which resouce is used ("train", "valid", "test")
+  * `vocab_columns`: whick column is used
+* `make_vocab`
+  * `tokenizer`: Tokenizer
+  * `vocab_size`: Vocacbulary size
+  * `min_word_count`: Minimum word count to include the vocabulary
+  * `end_of_sentence`: If you want to clarify the end-of-line by specific tag, then use this.
+  * `unknown`: The tag used for out of vocabulary word
+  * `reserved_words`: The word that should included in vocabulary (ex. tag for padding)
+  * `force`: Don't use cache, re-create the dataset.
 
 ## Additional Feature
 
@@ -84,13 +129,3 @@ Before you execute chazutsu on Jupyter, you have to enable widget extention by b
 ```
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
 ```
-
-# Install
-
-```
-pip install chazutsu
-```
-
-# Supported Datasets
-
-**[Please refer here!](https://github.com/chakki-works/chazutsu/tree/master/chazutsu)**
