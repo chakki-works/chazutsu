@@ -88,33 +88,30 @@ Then
 2             1  when the skittish emma finds blood on her pill...
 ```
 
-Now execute the tokenization.
+Now we want to convert this data to train various frameworks.
 
 ```py
-r_idx = r.to_indexed().make_vocab(min_word_count=3)
-r_idx.train_data().head(3)
+fixed_len = 10
+r.make_vocab(vocab_size=1000)
+r.column("review").as_word_seq(fixed_len=fixed_len)
+X, y = r.to_batch("train")
+assert X.shape == (len(y), fixed_len, len(r.vocab))
+assert y.shape == (len(y), 1)
 ```
 
-Then
-
-```
-   subjectivity                                             review
-0             0  [240, 18, 73, 1824, 3, 7, 792, 306, 812, 30, 3...
-1             1  [1, 6841, 7, 15, 3052, 4179, 1470, 12, 1910, 9...
-2             1  [38, 1, 0, 2233, 142, 912, 18, 19, 0, 365, 116...
-```
-
-* `to_indexed`
-  * `vocab_resources`: which resouce is used ("train", "valid", "test")
-  * `vocab_columns`: whick column is used
 * `make_vocab`
+  * `vocab_resources`: resources to make vocabulary ("train", "valid", "test")
+  * `columns_for_vocab`: The columns to make vocabulary
   * `tokenizer`: Tokenizer
   * `vocab_size`: Vocacbulary size
-  * `min_word_count`: Minimum word count to include the vocabulary
-  * `end_of_sentence`: If you want to clarify the end-of-line by specific tag, then use this.
+  * `min_word_freq`: Minimum word count to include the vocabulary
   * `unknown`: The tag used for out of vocabulary word
+  * `padding`: The tag used to pad the sequence
+  * `end_of_sentence`: If you want to clarify the end-of-line by specific tag, then use this.
   * `reserved_words`: The word that should included in vocabulary (ex. tag for padding)
   * `force`: Don't use cache, re-create the dataset.
+
+If you don't want to load all the training data? You can use `to_batch_iter`.
 
 ## Additional Feature
 

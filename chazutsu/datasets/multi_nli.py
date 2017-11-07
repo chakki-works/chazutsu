@@ -3,7 +3,7 @@ import re
 import json
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
-from chazutsu.datasets.framework.resource import Resource, IndexedResource
+from chazutsu.datasets.framework.resource import Resource
 
 
 class MultiNLI(Dataset):
@@ -150,9 +150,3 @@ class NLIResource(Resource):
 
     def dev_data(self, split_target=False):
         return self._get_data("dev", split_target)
-
-    def to_indexed(self,
-                   vocab_resources=("train", "dev", "test"),
-                   vocab_columns=("sentence1", "sentence2")):
-        ir = IndexedResource(self, vocab_resources, vocab_columns)
-        return ir

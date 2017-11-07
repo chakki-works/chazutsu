@@ -1,6 +1,9 @@
 import os
+import mmap
+import numpy as np
 import pandas as pd
 from chazutsu.datasets.framework.vocabulary import Vocabulary
+from chazutsu.datasets.framework import converter as cv
 
 
 class Resource():
@@ -15,6 +18,7 @@ class Resource():
         self.target = target
         self.separator = separator
         self._pattern = pattern
+        self._vocab = None
         if len(self._pattern) == 0:
             self._pattern = {
                 "train": "_train",
@@ -24,6 +28,7 @@ class Resource():
             }
         self._resource_name = ""
         self._resource = {}
+        self._batch_def = {}
 
         if target and target not in columns:
             raise Exception("Target have to be selected from columns.")
@@ -75,7 +80,7 @@ class Resource():
         return self._get_prop("sample")
 
     def _get_prop(self, name):
-        return "" if name not in self._resource else self._resource[name]        
+        return "" if name not in self._resource else self._resource[name]
 
     def data(self, split_target=False):
         return self._get_data("data", split_target)
@@ -92,10 +97,10 @@ class Resource():
     def sample_data(self, split_target=False):
         return self._get_data("sample", split_target)
 
-    def _get_data(self, name, split_target):
-        if name not in self._resource:
-            raise Exception("Can not find {} data resource.".format(name))
-        return self._to_pandas(self._resource[name], split_target)
+    def _get_data(self, kind, split_target):
+        if kind not in self._resource:
+            raise Exception("Can not find {} data self.".format(kind))
+        return self._to_pandas(self._resource[kind], split_target)
 
     def _to_pandas(self, path, split_target):
         df = pd.read_table(path, header=None, names=self.columns)
@@ -109,109 +114,184 @@ class Resource():
         else:
             return df
 
-    def to_indexed(self,
-                   vocab_resources=("train", "valid", "test"),
-                   vocab_columns=()):
-        ir = IndexedResource(self, vocab_resources, vocab_columns)
-        return ir
-
-
-class IndexedResource(Resource):
-
-    def __init__(self,
-                 resource,
-                 vocab_resources=("train", "valid", "test"),
-                 vocab_columns=()):
-
-        if len(resource._resource) == 0:
-            raise Exception("supplied resource does not have any resource.")
-
-        super().__init__(
-            resource.root,
-            resource.columns,
-            resource.target,
-            resource.separator,
-            resource._pattern
-        )
-        self.vocab_resources = vocab_resources
-        self.vocab_columns = vocab_columns
-        if len(self.vocab_columns) == 0:
-            # assume last column would be text
-            self.vocab_columns = [self.columns[-1]]
-
-        self._resource_name = resource._resource_name
-        self._original_resource = resource._resource
-        self.vocab = Vocabulary(self.root, self._resource_name)
-
     def make_vocab(self,
+                   vocab_resources=("train", "valid", "test"),
+                   columns_for_vocab=(),
                    tokenizer=None,
                    vocab_size=-1,
-                   min_word_count=0,
-                   end_of_sentence="",
+                   min_word_freq=0,
                    unknown="<unk>",
-                   reserved_words=(),
+                   padding="<pad>",
+                   end_of_sentence="",
+                   reserved_words=("<pad>", "<unk>"),
                    force=False):
 
-        if self.vocab.has_vocab() and not force:
-            return self
+        if len(self._resource) == 0:
+            raise Exception("Supplied resource does not have any resource.")
 
-        if tokenizer is not None:
-            self.vocab.tokenizer = tokenizer
-        if end_of_sentence:
-            self.vocab.end_of_sentence = end_of_sentence
-        if unknown:
-            self.vocab.unknown = unknown
+        # Prepare the file paths to make vocab
+        resource_for_vocab = []
+        for kind in vocab_resources:
+            if kind in self._resource and self._resource[kind]:
+                resource_for_vocab.append(self._resource[kind])
+        if len(resource_for_vocab) == 0:
+            raise Exception(
+                "There are no resource in {} to make vocaburaly.".format(
+                    self._resource_name))
 
-        paths = []
-        for kind in self._original_resource:
-            p = self._original_resource[kind]
-            if p and kind in self.vocab_resources:
-                paths.append(p)
-        column_indexes = [i for i, c in enumerate(self.columns) if c in self.vocab_columns]
+        # Prepare the column index to make vocab
+        _c_for_vocab = columns_for_vocab
+        if len(_c_for_vocab) == 0:
+            _c_for_vocab = self.columns  # all columns is used
 
-        if len(paths) > 0:
-            self.vocab.make(
-                paths, vocab_size, min_word_count, column_indexes,
-                self.separator, reserved_words)
+        _c_for_vocab_idx = [i for i, c in enumerate(self.columns)
+                            if c in _c_for_vocab]
 
-        return self
+        self._vocab = Vocabulary(
+            self.root, self._resource_name,
+            tokenizer=tokenizer, unknown=unknown, padding=padding,
+            end_of_sentence=end_of_sentence)
+
+        if self._vocab.has_vocab() and not force:
+            self._vocab.load()
+        else:
+            self._vocab.make(
+                path_or_paths=resource_for_vocab,
+                vocab_size=vocab_size, min_word_freq=min_word_freq,
+                separator=self.separator, reserved_words=reserved_words,
+                target_column_indexes=_c_for_vocab_idx)
+        return self._vocab
 
     @property
     def vocab_file_path(self):
-        if self.vocab.has_vocab():
-            return self.vocab._vocab_file_path
+        if self._vocab.has_vocab():
+            return self._vocab._vocab_file_path
         else:
             return ""
 
-    def vocab_data(self):
-        v = self.vocab._vocab
-        if len(v) == 0 and self.vocab.has_vocab():
-            self.vocab.load()
-            v = self.vocab._vocab
+    @property
+    def vocab(self):
+        v = self._vocab._vocab
         return v
 
-    def str_to_ids(self, sentence):
-        return self.vocab.str_to_ids(sentence)
+    def column(self, column):
+        return Route(self, column)
 
-    def ids_to_words(self, ids):
-        return self.vocab.ids_to_words(ids)
-
-    def ids_to_one_hots(self, ids):
-        return self.vocab.ids_to_one_hots(ids)
-
-    def _to_pandas(self, path, split_target):
-        if not self.vocab.has_vocab():
-            raise Exception("You have to make vocabulary by make_vocab first.")
-
-        df = pd.read_table(path, header=None, names=self.columns)
-        for c in self.vocab_columns:
-            df[c] = df[c].map(self.vocab.str_to_ids)
-
-        if not split_target:
-            return df
-        elif self.target and self.target in df.columns:
-            target = df[self.target]
-            df.drop(self.target, axis=1, inplace=True)
-            return target, df
+    def to_batch(self, kind, columns=()):
+        df = self._get_data(kind, split_target=False)
+        y = None
+        Xs = []
+        _columns = columns if len(columns) > 0 else self.columns
+        for c in _columns:
+            if c not in df.columns:
+                raise Exception("{} is not exist.".format(c))
+            s = self._to_array(c, df[c])
+            if c == self.target:
+                y = s
+            else:
+                Xs.append(s)
+        if len(Xs) == 1:
+            X = Xs[0]
         else:
-            return df
+            X = np.hstack(Xs)
+
+        return X, y
+
+    def _to_array(self, column, data):
+        _cv = cv.Converter()
+        if column in self._batch_def:
+            _cv = self._batch_def[column]
+
+        s = _cv.flow(data)
+        if len(s.shape) == 1:
+            s = np.reshape(s, (-1, 1))  # vector to vertical mx
+        return s
+
+    def get_line_count(self, kind):
+        file_path = self._get_prop(kind)
+        count = 0
+        with open(file_path, "r+") as fp:
+            buf = mmap.mmap(fp.fileno(), 0)
+            while buf.readline():
+                count += 1
+        return count
+
+    def to_batch_iter(self, kind, batch_size, columns=()):
+        iterator = self._to_batch_iter(kind, batch_size, columns)
+        batch_count = self.get_line_count(kind) // batch_size
+        return iterator, batch_count
+
+    def _to_batch_iter(self, kind, batch_size, columns=()):
+        file_path = self._get_prop(kind)
+        targets = columns if len(columns) > 0 else self.columns
+        while True:
+            Xs = {}
+            y = []
+            with open(file_path, encoding="utf-8") as f:
+                for line in f:
+                    tokens = line.strip().split(self.separator)
+                    for i, c in enumerate(self.columns):
+                        if c not in targets:
+                            continue
+                        if c == self.target:
+                            y.append(tokens[i])
+                        else:
+                            if c not in Xs:
+                                Xs[c] = []
+                            Xs[c].append(tokens[i])
+                    if len(y) == batch_size:
+                        yb = self._to_array(self.target, y)
+                        Xb = []
+                        for c in Xs:
+                            Xb.append(self._to_array(c, Xs[c]))
+
+                        if len(Xb) == 1:
+                            Xb = Xb[0]
+                        else:
+                            Xb = np.hstack(Xb)
+                        yield Xb, yb
+
+                        y.clear()
+                        for x in Xs:
+                            Xs[x].clear()
+
+
+class Route():
+
+    def __init__(self, resource, column):
+        self.r = resource
+        self.column = column
+
+    def as_word_seq(self, fixed_len=-1):
+        c = cv.VocabularyConverter(self.r._vocab, fixed_len)
+        self.r._batch_def[self.column] = c
+        return self
+
+    def as_category(self, labels=(), distincts=False, num_class=-1):
+        c = cv.OneHotConverter(labels, distincts, num_class)
+        self.r._batch_def[self.column] = c
+        return self
+
+    def as_dictid(self, labels=(), distincts=False, num_class=-1):
+        c = cv.DictionalyConverter(labels, distincts, num_class)
+        self.r._batch_def[self.column] = c
+        return self
+
+    def flow(self, series):
+        if self.column in self.r._batch_def:
+            return self.r._batch_def[self.column].flow(series)
+        else:
+            return None
+
+    def back(self, converted):
+        if self.column in self.r._batch_def:
+            return self.r._batch_def[self.column].back(converted)
+        else:
+            return None
+
+    def to_batch(self, kind, with_target=False):
+        if with_target:
+            return self.r.to_batch(kind, columns=[self.r.target, self.column])
+        else:
+            X, _ = self.r.to_batch(kind, columns=[self.column])
+            return X

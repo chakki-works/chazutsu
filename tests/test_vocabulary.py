@@ -1,7 +1,7 @@
+import unittest
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
-import unittest
 from chazutsu.datasets.framework.vocabulary import Vocabulary
 
 
@@ -27,8 +27,8 @@ class TestVocabulary(unittest.TestCase):
 
     def test_make(self):
         vocab = Vocabulary(DATA_ROOT, "test_vocab", end_of_sentence="<eos>")
-        vocab.make(self.TEST_FILE, min_word_count=3)
-        self.assertTrue(len(vocab._vocab) == 4)  # apple & so & eos/unk
+        vocab.make(self.TEST_FILE, min_word_freq=3)
+        self.assertTrue(len(vocab._vocab) == 5)  # apple & so & eos/unk/pad
         
         vocab._vocab = {}
         ids = vocab.str_to_ids("apple so sweet")
@@ -44,14 +44,16 @@ class TestVocabulary(unittest.TestCase):
         vocab.make(self.TEST_FILE, vocab_size=4)
         self.assertEqual(len(vocab._vocab), 4)
         os.remove(vocab._vocab_file_path)
-    
-    def test_to_one_hots(self):
+
+    def test_str_to_matrix(self):
         vocab = Vocabulary(DATA_ROOT, "test_vocab", end_of_sentence="<eos>")
-        vocab.make(self.TEST_FILE, vocab_size=5)
-        one_hots = vocab.ids_to_one_hots(vocab.str_to_ids("apple so sweet"))
-        print(one_hots)
-        self.assertEqual(one_hots.shape, (3, 5))
+        vocab.make(self.TEST_FILE)
+        one_hot = vocab.str_to_matrix("apple so sweet", fixed_len=4)
+        self.assertEqual(one_hot.shape, (4, len(vocab)))
+        words = vocab.matrix_to_words(one_hot, ignore_padding=True)
+        self.assertEqual(len(words), 3)
         os.remove(vocab._vocab_file_path)
+
 
 if __name__ == "__main__":
     unittest.main()

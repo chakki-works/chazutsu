@@ -127,19 +127,18 @@ class TestMovieReview(unittest.TestCase):
         self.assertEqual(obj, 5000)
 
     def test_download(self):
-        resource = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
-        target, data = resource.test_data(split_target=True)
+        r = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
+        target, data = r.test_data(split_target=True)
         self.assertEqual(target.shape[0], data.shape[0])
 
-        resource_idx = resource.to_indexed().make_vocab(min_word_count=3)
-        train_idx = resource_idx.test_data()
-        print(">indexed data")
-        print(train_idx.head(3))
+        r.make_vocab(vocab_size=1000)
+        X, y = r.column("review").as_word_seq(fixed_len=20).to_batch("train", with_target=True)
+        self.assertEqual(y.shape, (len(y), 1))
+        self.assertEqual(X.shape, (len(y), 20, len(r.vocab)))
 
-        print(data.head(3))
-        print(train_idx["review"].map(resource_idx.ids_to_words).head(3))
-
-        shutil.rmtree(resource.root)
+        backed = r.column("review").back(X)
+        print(backed[:3])
+        shutil.rmtree(r.root)
 
 
 if __name__ == "__main__":

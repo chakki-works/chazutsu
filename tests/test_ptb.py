@@ -29,11 +29,7 @@ class TestPTB(unittest.TestCase):
 
     def test_tokenize(self):
         r = chazutsu.datasets.PTB().download(directory=DATA_ROOT)
-        r_id = r.to_indexed().make_vocab(min_word_count=5)
-
-        train_ids = r_id.train_data()
-        print(train_ids.head(5))
-        print(train_ids["sentence"].map(r_id.ids_to_words).head(5))
+        r.make_vocab(vocab_size=1000, min_word_freq=5)
 
 
 if __name__ == "__main__":

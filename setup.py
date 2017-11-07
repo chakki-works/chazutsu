@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="chazutsu",
-    version="0.7.0",
+    version="0.8.0",
     description="The tool to make NLP datasets ready to use",
     keywords=["machine learning", "nlp", "natural language processing"],
     author="icoxfog417",

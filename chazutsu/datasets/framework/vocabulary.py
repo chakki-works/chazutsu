@@ -10,17 +10,20 @@ from chazutsu.datasets.framework.tokenizer import Tokenizer
 class Vocabulary():
 
     def __init__(self, root, name, tokenizer=None,
-                 end_of_sentence="", unknown="<unk>"):
+                 unknown="<unk>", padding="<pad>",
+                 end_of_sentence=""):
         self.root = root
         self.name = name
         self._vocab_file_path = os.path.join(root, name + ".vocab")
         self.tokenizer = tokenizer
         if self.tokenizer is None:
             self.tokenizer = Tokenizer()
-        self.end_of_sentence = end_of_sentence
         self.unknown = unknown
+        self.padding = padding
+        self.end_of_sentence = end_of_sentence
         self._vocab = {}
         self.__rev_vocab = {}
+        self.max_len = 0
 
         # create logger
         from logging import getLogger, StreamHandler, DEBUG
@@ -39,14 +42,18 @@ class Vocabulary():
     def has_vocab(self):
         return os.path.exists(self._vocab_file_path)
 
+    def __len__(self):
+        return len(self._vocab)
+
     def make(self,
-             path_or_paths, vocab_size=-1, min_word_count=0,
-             target_column_indexes=(), separator="\t", reserved_words=()):
+             path_or_paths, vocab_size=-1, min_word_freq=0,
+             separator="\t", reserved_words=(), target_column_indexes=()):
         vocab = Counter()
         paths = path_or_paths
         if isinstance(paths, str):
             paths = [paths]
 
+        self.max_len = 0
         for p in paths:
             self.logger.info("Read {} to make vocabulary.".format(p))
             count = self.get_line_count(p)
@@ -54,15 +61,16 @@ class Vocabulary():
                                separator), total=count):
                 for w in words:
                     vocab[w] += 1
-        
-        _vocab = [k_v[0] for k_v in vocab.most_common() if not k_v[1] < min_word_count]
-        if self.unknown and self.unknown not in _vocab:
-            _vocab.insert(0, self.unknown)
-        if self.end_of_sentence and self.end_of_sentence not in _vocab:
-            _vocab.insert(0, self.end_of_sentence)
-        if len(reserved_words) > 0:
-            for w in reserved_words:
-                _vocab.insert(0, w)
+                if len(words) > self.max_len:
+                    self.max_len = len(words)
+
+        _vocab = [k_v[0] for k_v in vocab.most_common()
+                  if not k_v[1] < min_word_freq]
+        _rv = reserved_words
+        if len(_rv) == 0:
+            _rv = [w for w in
+                   [self.padding, self.unknown, self.end_of_sentence] if w]
+        _vocab = list(_rv) + _vocab
 
         if vocab_size > 0:
             _vocab = _vocab[:vocab_size]
@@ -110,16 +118,17 @@ class Vocabulary():
     def str_to_ids(self, sentence):
         if len(self._vocab) == 0:
             self.load()
+        _s = sentence
+        if self.end_of_sentence:
+            _s = _s.replace("\r\n", self.end_of_sentence)
+            _s = _s.replace("\n", self.end_of_sentence)
         words = self.tokenizer.tokenize(sentence)
         unk_id = self._vocab[self.unknown]
-        ids = [unk_id if w not in self._vocab else self._vocab[w] for w in words]
-        if self.end_of_sentence and sentence.endswith(os.linesep):
-            eos_id = self._vocab[self.end_of_sentence]
-            ids.append(eos_id)
-
+        ids = [unk_id if w not in self._vocab else self._vocab[w]
+               for w in words]
         return ids
 
-    def ids_to_words(self, ids):
+    def ids_to_words(self, ids, ignore_padding=False):
         if len(self._vocab) == 0:
             self.load()
 
@@ -127,16 +136,24 @@ class Vocabulary():
             self.__rev_vocab = {v: k for k, v in self._vocab.items()}
 
         words = [self.__rev_vocab[i] for i in ids]
+        if ignore_padding:
+            words = [w for w in words if w != self.padding]
         return words
 
-    def ids_to_one_hots(self, ids):
-        if len(self._vocab) == 0:
-            self.load()
+    def str_to_matrix(self, sentence, fixed_len=-1):
+        ids = self.str_to_ids(sentence)
+        pad_id = self._vocab[self.padding]
+        if fixed_len > 0:
+            if len(ids) > fixed_len:
+                ids = ids[:fixed_len]
+            elif len(ids) < fixed_len:
+                ids = ids + ([pad_id] * (fixed_len - len(ids)))
 
-        if len(self.__rev_vocab) == 0:
-            self.__rev_vocab = {v: k for k, v in self._vocab.items()}
-
-        one_hots = np.zeros((len(ids), len(self._vocab)))
+        seqlen_x_vocab = np.zeros((len(ids), len(self._vocab)))
         for i, _id in enumerate(ids):
-            one_hots[i][_id] = 1
-        return one_hots
+            seqlen_x_vocab[i][_id] = 1
+        return seqlen_x_vocab
+
+    def matrix_to_words(self, matrix, ignore_padding=False):
+        ids = np.argmax(matrix, axis=1)
+        return self.ids_to_words(ids, ignore_padding)

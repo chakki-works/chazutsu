@@ -21,13 +21,20 @@ class TestResource(unittest.TestCase):
         for t in cls.TEST_FILES:
             file = cls.TEST_FILES[t]
             if t == "train":
-                content = "\t".join(["o", "good sentence."])
+                one = "\t".join(["o", "good apple is delicious.", "1"])
+                two = "\t".join(["x", "bad bananas taste bad.", "-1"])
+                three = "\t".join(["x", "bad cherries are yellow .", "-1"])
+                four = "\t".join(["-", "normal fruits have flavor.", "0"])
+                content = "\n".join([one, two, three, four])
             elif t == "test":
-                content = "\t".join(["x", "bad sentence."])
+                one = "\t".join(["o", "good grape is delicious.", "1"])
+                two = "\t".join(["x", "bad oranges taste bad.", "-1"])
+                three = "\t".join(["x", "bad pears are yellow .", "-1"])
+                content = "\n".join([one, two, three])
             elif t == "sample":
-                content = "\t".join(["x", "bad sentence."])
+                content = "\t".join(["x", "bad cherries are yellow .", "-1"])
             else:
-                content = "\t".join(["-", "normal sentence."])
+                content = "\t".join(["-", "normal fruits have flavor.", "0"])
             
             with open(os.path.join(DATA_ROOT, file), mode="wb") as f:
                 f.write(content.encode("utf-8"))
@@ -59,21 +66,36 @@ class TestResource(unittest.TestCase):
     def test_to_pandas(self):
         r = Resource(DATA_ROOT, ["sentiment", "text"], "sentiment")
         target, text = r.train_data(split_target=True)
-        self.assertEqual(len(target), 1)
-        self.assertEqual(len(text), 1)
+        self.assertEqual(len(target), 4)
+        self.assertEqual(len(text), 4)
 
         print(r.train_data().head(1))
 
-    def test_to_indexed(self):
-        r = Resource(DATA_ROOT, ["sentiment", "text"], "sentiment")
-        r_indexed = r.to_indexed().make_vocab(min_word_count=0)
+    def test_to_batch(self):
+        r = Resource(DATA_ROOT, ["sentiment", "text", "score"], "sentiment")
+        X, y = r.to_batch("train")
+        self.assertEqual(X.shape, (4, 2))
+        self.assertEqual(y.shape, (4, 1))
+        r.make_vocab()
+        r.column("text").as_word_seq(fixed_len=5)
+        X, y = r.to_batch("train", columns=("sentiment", "text"))
+        self.assertEqual(X.shape, (4, 5, len(r.vocab)))
 
-        self.assertTrue(os.path.exists(r_indexed.vocab_file_path))
-        vocab = r_indexed.vocab_data()
-        self.assertEqual(len(vocab), 4)  # good/bad/sentence/unk (train + test)
-        train_idx = r_indexed.train_data()
-        self.assertEqual(len(train_idx), 1)
-        os.remove(r_indexed.vocab_file_path)
+    def test_to_batch_iter(self):
+        r = Resource(DATA_ROOT, ["sentiment", "text", "score"], "sentiment")
+        r.make_vocab()
+        batch_size = 2
+        fixed_len = 5
+        r.column("text").as_word_seq(fixed_len=fixed_len)
+        iterator, count = r.to_batch_iter(
+                            "train", columns=("sentiment", "text"),
+                            batch_size=batch_size)
+        self.assertEqual(count, batch_size)
+        for i in range(4):
+            X, y = next(iterator)
+            self.assertEqual(y.shape, (batch_size, 1))
+            self.assertEqual(X.shape, (batch_size, fixed_len, len(r.vocab)))
+            print(r.column("text").back(X))
 
 
 if __name__ == "__main__":
