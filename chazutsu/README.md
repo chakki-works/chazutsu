@@ -294,12 +294,11 @@ The dataset in chazutsu is got from [harvardnlp/sent-summary](https://github.com
 If you want to download this dataset, please use below class.
 
 * `DUC2003`
-  * `summary_no`: It means which human-generated summary you use (0~3).
 
 **Dataset File format**
 
 * `news`
-* `summary`
+* `summary1`~`summary4`
 
 
 **Citation/License**
@@ -317,12 +316,11 @@ The dataset in chazutsu is got from [harvardnlp/sent-summary](https://github.com
 If you want to download this dataset, please use below class.
 
 * `DUC2004`
-  * `summary_no`: It means which human-generated summary you use (0~3).
 
 **Dataset File format**
 
 * `news`
-* `summary`
+* `summary1`~`summary4`
 
 **Citation/License**
 
