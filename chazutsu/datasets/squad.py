@@ -6,7 +6,7 @@ from chazutsu.datasets.framework.dataset import Dataset
 from chazutsu.datasets.framework.resource import Resource
 
 
-class Squad(Dataset):
+class SQuAD(Dataset):
 
     def __init__(self, kind="train"):
 
