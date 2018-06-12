@@ -19,8 +19,8 @@ class TestSquad(unittest.TestCase):
             shutil.rmtree(DATA_ROOT)
 
     def test_download(self):
-        r_train = chazutsu.datasets.Squad('train').download(DATA_ROOT)
-        r_dev = chazutsu.datasets.Squad('dev').download(DATA_ROOT)
+        r_train = chazutsu.datasets.Squad("train").download(DATA_ROOT)
+        r_dev = chazutsu.datasets.Squad("dev").download(DATA_ROOT)
 
         train = r_train.data()
         dev = r_dev.data()
