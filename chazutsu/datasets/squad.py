@@ -8,7 +8,7 @@ from chazutsu.datasets.framework.resource import Resource
 
 class SQuAD(Dataset):
 
-    def __init__(self, kind="train"):
+    def __init__(self, kind="train", version="v2.0"):
 
         super().__init__(
             name="SQuAD",
@@ -21,9 +21,16 @@ class SQuAD(Dataset):
             "SQuAD is significantly larger than previous reading comprehension datasets."
         )
 
+        versions = ("v1.1", "v2.0")
+
+        if version not in ("v1.1", "v2.0"):
+            raise Exception(
+                "You have to choose version from {}".format(",".join(versions)))
+
+        endpoint = "https://rajpurkar.github.io/SQuAD-explorer/dataset/"
         urls = {
-            "train": "https://rajpurkar.github.io/SQuAD-explorer/dataset/train-v1.1.json",
-            "dev": "https://rajpurkar.github.io/SQuAD-explorer/dataset/dev-v1.1.json"
+            "train": endpoint + "train-{}.json".format(version),
+            "dev": endpoint + "dev-{}.json".format(version)
         }
 
         if kind not in urls:
@@ -31,8 +38,9 @@ class SQuAD(Dataset):
             raise Exception("You have to choose kind from {}".format(keys))
 
         self.kind = kind
+        self.version = version
         self.download_url = urls[kind]
-        self.original_file = "train-v1.1.json" if kind == "train" else "dev-v1.1.json"
+        self.original_file = os.path.basename(self.download_url)
         self.columns = ["context", "question", "answer", "start", "end"]
 
     @classmethod
@@ -45,7 +53,7 @@ class SQuAD(Dataset):
 
     @property
     def root_name(self):
-        return self.name.lower().replace(" ", "_") + "_" + self.kind
+        return self.name.lower().replace(" ", "_") + "_{}_{}".format(self.kind, self.version)
 
     def download(self,
                  directory="", shuffle=True, test_size=0, sample_count=0,
