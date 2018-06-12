@@ -1,5 +1,6 @@
 import os
 import json
+from collections import Counter
 
 from chazutsu.datasets.framework.xtqdm import xtqdm
 from chazutsu.datasets.framework.dataset import Dataset
@@ -72,21 +73,45 @@ class SQuAD(Dataset):
         with open(original_file_path, encoding="utf-8") as rf:
             data = json.load(rf)["data"]
 
+        make_line = getattr(
+            self, "make_line_{}".format(self.version.replace(".", "_")))
+
         for article in xtqdm(data):
             for paragraph in article["paragraphs"]:
                 context = paragraph["context"]
                 for qa in paragraph["qas"]:
                     question = qa["question"]
-                    for a in qa["answers"]:
-                        text = a["text"]
-                        start = a["answer_start"]
-                        end = start + len(text.split())
-                        line = "{}\t{}\t{}\t{}\t{}\n".format(
-                            context, question, text, start, end)
-                        write_file.write(line)
+                    line = make_line(context, question, qa)
+                    write_file.write(line)
         self.trush(original_file_path)
 
         return write_file_path
+
+    @staticmethod
+    def make_line_v1_1(context, question, qa):
+        answers, starts = zip(
+            *((a["text"], a["answer_start"]) for a in qa["answers"]))
+        spans = [(start, start + len(text.split()))
+                 for text, start in zip(answers, starts)]
+        most_frequent_span = Counter(spans).most_common(1)[0][0]
+        target_index = max(range(len(spans)),
+                           key=lambda x: spans[x] == most_frequent_span)
+        # pick the most frequent answer
+        answer = answers[target_index]
+        start, end = most_frequent_span
+        return "{}\t{}\t{}\t{}\t{}\n".format(
+            context, question, start, end, answer)
+
+    @classmethod
+    def make_line_v2_0(cls, context, question, qa):
+        if not qa["is_impossible"]:
+            # You can answer the question
+            return cls.make_line_v1_1(context, question, qa)
+        else:
+            # You can't answer the question
+            # TODO: We need to discuss how to handle unanswerable questions
+            return "{}\t{}\t{}\t{}\t{}\n".format(
+                context, question, None, None, None)
 
     def make_resource(self, data_root):
         if self.kind == "train":
