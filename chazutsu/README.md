@@ -410,3 +410,13 @@ If you set the `full=False`, item enclosed in parentheses is excluded.
 **Citation/License**
 
 Adina Williams, Nikita Nangia, Samuel R. Bowman. [A Broad-Coverage Challenge Corpus for Sentence Understanding through Inference](https://arxiv.org/abs/1704.05426), EMNLP 2017
+
+## Question Answering
+
+### [The Stanford Question Answering Dataset (SQuAD)](https://rajpurkar.github.io/SQuAD-explorer/)
+
+
+Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset, 
+consisting of questions posed by crowdworkers on a set of Wikipedia articles, 
+where the answer to every question is a segment of text, or span, from the corresponding reading passage, 
+or the question might be unanswerable.
