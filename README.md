@@ -52,6 +52,8 @@ chazutsu supports various kinds of datasets!
   * Gigaword
 * Textual entailment
   * The Multi-Genre Natural Language Inference (MultiNLI)
+* Question Answering
+  * The Stanford Question Answering Dataset (SQuAD)
 
 
 # How it works

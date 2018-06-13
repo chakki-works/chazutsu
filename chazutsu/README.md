@@ -20,6 +20,8 @@ Let me introduce supported dataset in chazutsu!
   * [Gigaword](#gigaword)
 * Textual entailment
   * [The Multi-Genre Natural Language Inference (MultiNLI)](#the-multi-genre-natural-language-inference-multinli)
+* Question Answering
+  * [The Stanford Question Answering Dataset (SQuAD)](#the-stanford-question-answering-dataset-squad)
 
 ## Sentiment Analysis
 
@@ -410,3 +412,47 @@ If you set the `full=False`, item enclosed in parentheses is excluded.
 **Citation/License**
 
 Adina Williams, Nikita Nangia, Samuel R. Bowman. [A Broad-Coverage Challenge Corpus for Sentence Understanding through Inference](https://arxiv.org/abs/1704.05426), EMNLP 2017
+
+## Question Answering
+
+### [The Stanford Question Answering Dataset (SQuAD)](https://rajpurkar.github.io/SQuAD-explorer/)
+
+Stanford Question Answering Dataset (SQuAD) is a reading comprehension dataset,
+consisting of questions posed by crowdworkers on a set of Wikipedia articles,
+where the answer to every question is a segment of text, or span, from the corresponding reading passage,
+or the question might be unanswerable.
+
+If you want to download this dataset, please use below class.
+
+* `SQuAD`
+
+You can download SQuAD as below. Also you can specify train/dev (default is train).
+
+```
+>>> SQuAD().download()
+>>> SQuAD(kind='dev').download()
+```
+
+By default, SQuAD class downloads v2.0 dataset. But you can download v1.1 as below.
+
+```
+>>> SQuAD(version='v1.1').download()
+```
+
+**Dataset File format**
+
+* `context`: paragraph
+* `question`: question text
+* `start`: answer start position in context
+* `end`: answer end position in context
+* `answer`: answer text
+
+**Citation/License**
+
+For v2.0
+
+Pranav Rajpurkar, Robin Jia, Percy Liang. [Know What You Don't Know: Unanswerable Questions for SQuAD](https://arxiv.org/abs/1806.03822), ACL 2018
+
+For v1.1
+
+Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev, Percy Liang. [SQuAD: 100, 000+ Questions for Machine Comprehension of Text](https://arxiv.org/abs/1606.05250), EMNLP 2016
