@@ -1,4 +1,5 @@
 import os
+import csv
 import json
 from collections import Counter
 
@@ -67,28 +68,31 @@ class SQuAD(Dataset):
     def prepare(self, dataset_root, _):
         original_file_path = os.path.join(dataset_root, self.original_file)
         write_file_path = os.path.splitext(original_file_path)[0] + ".txt"
-        write_file = open(write_file_path, mode="w", encoding="utf-8")
+        write_file = open(write_file_path, mode="w", encoding="utf-8", newline="")
+        writer = csv.writer(write_file, delimiter="\t")
 
         self.logger.info("Preprocessing {}".format(original_file_path))
         with open(original_file_path, encoding="utf-8") as rf:
             data = json.load(rf)["data"]
 
-        make_line = getattr(
-            self, "make_line_{}".format(self.version.replace(".", "_")))
+        make_row = getattr(
+            self, "make_row_{}".format(self.version.replace(".", "_")))
 
         for article in xtqdm(data):
             for paragraph in article["paragraphs"]:
-                context = paragraph["context"]
+                context = paragraph["context"].strip().replace("\n", "")
                 for qa in paragraph["qas"]:
-                    question = qa["question"]
-                    line = make_line(context, question, qa)
-                    write_file.write(line)
+                    question = qa["question"].strip().replace("\n", "")
+                    row = make_row(context, question, qa)
+                    writer.writerow(row)
+
         self.trush(original_file_path)
+        write_file.close()
 
         return write_file_path
 
     @staticmethod
-    def make_line_v1_1(context, question, qa):
+    def make_row_v1_1(context, question, qa):
         answers, starts = zip(
             *((a["text"], a["answer_start"]) for a in qa["answers"]))
         spans = [(start, start + len(text.split()))
@@ -99,19 +103,16 @@ class SQuAD(Dataset):
         # pick the most frequent answer
         answer = answers[target_index]
         start, end = most_frequent_span
-        return "{}\t{}\t{}\t{}\t{}\n".format(
-            context, question, start, end, answer)
+        return (context, question, start, end, answer)
 
     @classmethod
-    def make_line_v2_0(cls, context, question, qa):
+    def make_row_v2_0(cls, context, question, qa):
         if not qa["is_impossible"]:
             # You can answer the question
-            return cls.make_line_v1_1(context, question, qa)
+            return cls.make_row_v1_1(context, question, qa)
         else:
             # You can't answer the question
-            # TODO: We need to discuss how to handle unanswerable questions
-            return "{}\t{}\t{}\t{}\t{}\n".format(
-                context, question, -1, -1, "")
+            return (context, question, -1, -1, "")
 
     def make_resource(self, data_root):
         if self.kind == "train":
