@@ -111,7 +111,7 @@ class SQuAD(Dataset):
             # You can't answer the question
             # TODO: We need to discuss how to handle unanswerable questions
             return "{}\t{}\t{}\t{}\t{}\n".format(
-                context, question, None, None, None)
+                context, question, -1, -1, "")
 
     def make_resource(self, data_root):
         if self.kind == "train":
