@@ -11,3 +11,4 @@ from .text8 import Text8
 from .duc2003 import DUC2003
 from .duc2004 import DUC2004
 from .gigaword import Gigaword
+from .squad import SQuAD
