@@ -95,7 +95,7 @@ class SQuAD(Dataset):
     def make_row_v1_1(context, question, qa):
         answers, starts = zip(
             *((a["text"], a["answer_start"]) for a in qa["answers"]))
-        spans = [(start, start + len(text.split()))
+        spans = [(start, start + len(text))
                  for text, start in zip(answers, starts)]
         most_frequent_span = Counter(spans).most_common(1)[0][0]
         target_index = max(range(len(spans)),
