@@ -80,7 +80,7 @@ class SQuAD(Dataset):
 
         for article in xtqdm(data):
             for paragraph in article["paragraphs"]:
-                context = paragraph["context"].strip().replace("\n", "")
+                context = paragraph["context"].replace("\n", " ")
                 for qa in paragraph["qas"]:
                     question = qa["question"].strip().replace("\n", "")
                     row = make_row(context, question, qa)
