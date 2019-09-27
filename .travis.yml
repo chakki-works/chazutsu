@@ -1,0 +1,21 @@
+language: python
+python:
+  - "3.6"
+  - "3.7"
+before_install:
+  - python --version
+install:
+  - pip install -r requirements.txt
+  - pip install pytest codecov pytest-cov
+script:
+  - pytest --cov=chazutsu tests/test_*
+after_success:
+  codecov
+deploy:
+  provider: pypi
+  user: "icoxfog417"
+  password:
+    secure: Jf1tOpmwUk8IuI1G8cI2QJDI8ujfv4rFCGKfvyqfspimKQNSj45aXTD5qa+WaGeNkEKwf6D6YkKD7DCMHCb0XnLBlco1pC8ZmwPbBg6RjZJfly64BdqHUW7ovNhE7/bNts9EzbDxWoYjj17Nq6i8OVRqM+TgS+nHscvswzfCv8BnTEIStrAfCRNXU4EU7kOts+2xW0M7lR/L8nXsU/PL92GG+lgbFV3LdbRs9+F56g5inKggqOT8APxlq025NYJ2mKseAA6Gr70ZgJuwoPYJT6qf5F83dKbLWN00Z7bc8WfGrt9Wrh3p6TvgdIiMnlv5zsREyaYoK/5LU0rm6JhlECnFj5+Ut8SXncou8zatvWoSIwdWBDnt/JSy4XJzuTbJgUaIfKhY+IGs9MQ0xWJGUvBbKG497g4AiPAC4o1Qq48Hn0L8LwpjnKMIdFtNARWR5FNdTIpRLMmiRwNnby34OXzYfdS0ZdU29tiCQIm9oUNWKlfru34xL6WJtLWngeLtzlGtYk4yLykCihenFup7o0xrXwuks8+h8YuzPa0Eqjwtimsseb7P/4pmUnj4i8H5IFGwylgxyCFuJK2xD8pGQUgdrxneaSpKLhevGo/9MRkXTMc3pSZIv0L6OSZl4D9yeQcHDCLZGY7P3gY4U8i7Cp/1LfetENTxGdfXQSbVwpg=
+  on:
+    tags: true
+    python: "3.7"
