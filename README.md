@@ -5,7 +5,7 @@
 
 [![PyPI version](https://badge.fury.io/py/chazutsu.svg)](https://badge.fury.io/py/chazutsu)
 [![Build Status](https://travis-ci.org/chakki-works/chazutsu.svg?branch=master)](https://travis-ci.org/chakki-works/chazutsu)
-[![codecov](https://codecov.io/gh/chakki-works/chazutsu/branch/master/graph/badge.svg)](https://codecov.io/gh/chakki-works/chaFi
+[![codecov](https://codecov.io/gh/chakki-works/chazutsu/branch/master/graph/badge.svg)](https://codecov.io/gh/chakki-works/chazutsu)
 
 chazutsu is the dataset downloader for NLP.
 
