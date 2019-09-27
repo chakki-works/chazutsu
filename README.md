@@ -3,6 +3,10 @@
 ![chazutsu_top.PNG](./docs/chazutsu_top.PNG)  
 *[photo from Kaikado, traditional Japanese chazutsu maker](http://www.kaikado.jp/english/goods/design.html)*
 
+[![PyPI version](https://badge.fury.io/py/chazutsu.svg)](https://badge.fury.io/py/chazutsu)
+[![Build Status](https://travis-ci.org/chakki-works/chazutsu.svg?branch=master)](https://travis-ci.org/chakki-works/chazutsu)
+[![codecov](https://codecov.io/gh/chakki-works/chazutsu/branch/master/graph/badge.svg)](https://codecov.io/gh/chakki-works/chaFi
+
 chazutsu is the dataset downloader for NLP.
 
 ```py
