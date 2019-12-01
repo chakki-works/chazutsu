@@ -1,8 +1,10 @@
+import tempfile
 import unittest
 import os
 import sys
 import shutil
 import pandas as pd
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu
 from chazutsu.datasets.framework.converter import DictionalyConverter
@@ -10,10 +12,13 @@ from chazutsu.datasets.framework.converter import VocabularyConverter
 from chazutsu.datasets.framework.converter import OneHotConverter
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
-
-
 class TestConverter(unittest.TestCase):
+
+    def setUp(self):
+        self.test_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
 
     def test_dictionaly_converter(self):
         df = pd.DataFrame({
@@ -23,7 +28,7 @@ class TestConverter(unittest.TestCase):
         de = DictionalyConverter(df["label"])
 
         self.assertEqual(de.flow(df["label"]).tolist(), [0, 1, 2])
-        self.assertEqual(de.back(df["data"]).tolist(), 
+        self.assertEqual(de.back(df["data"]).tolist(),
                          ["banana", "apple", "cherry"])
 
     def test_onehot_converter(self):
@@ -40,7 +45,7 @@ class TestConverter(unittest.TestCase):
 
     def test_vocabulary_converter(self):
         # download test dataset
-        r = chazutsu.datasets.DUC2003(summary_no=1).download(DATA_ROOT)
+        r = chazutsu.datasets.DUC2003().download(self.test_dir)
         v = r.make_vocab(vocab_size=500)
         ve = VocabularyConverter(v, fixed_len=10)
 
@@ -48,8 +53,6 @@ class TestConverter(unittest.TestCase):
         self.assertEqual(flowed.shape, (3, 10, 500))
         backed = ve.back(flowed)
         self.assertEqual(backed.shape, (3, 10))
-
-        shutil.rmtree(r.root)
 
 
 if __name__ == "__main__":

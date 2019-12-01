@@ -1,19 +1,17 @@
 import os
-import sys
 import shutil
+import sys
 import unittest
-import requests
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
+from tests.dataset_base_test import DatasetTestCase
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
-
-
-class TestNewsGroup20(unittest.TestCase):
+class TestNewsGroup20(DatasetTestCase):
 
     def test_extract(self):
-        r = chazutsu.datasets.NewsGroup20().download(directory=DATA_ROOT, test_size=0)
+        r = chazutsu.datasets.NewsGroup20().download(self.test_dir, test_size=0)
 
         try:
             with open(r.data_file_path, encoding="utf-8") as f:

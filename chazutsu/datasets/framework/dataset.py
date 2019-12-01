@@ -3,17 +3,16 @@ import sys
 import re
 import mmap
 import random
-import math
+import requests
 import zipfile
 import tarfile
 import gzip
 import shutil
+import math
 from urllib.parse import urlparse
-import requests
-from chazutsu.datasets.framework.xtqdm import xtqdm
-from joblib import Parallel, delayed
-from chazutsu.datasets.framework.resource import Resource
 
+from chazutsu.datasets.framework.xtqdm import xtqdm
+from chazutsu.datasets.framework.resource import Resource
 
 class Dataset():
     """ Dataset Class Framework """
@@ -83,7 +82,6 @@ class Dataset():
         extracted_file_path = self.extract(save_file_path)
 
         self.trush(save_file_path)
-        self.trush(extracted_file_path)
         return dataset_root, extracted_file_path
 
     def download(self,
@@ -120,10 +118,12 @@ class Dataset():
                 f.writelines(lines)
 
         # make sample file
-        self.make_samples(prepared_file_path, sample_count)
+        sample_file_path = self.make_samples(prepared_file_path,
+                                             sample_count=sample_count,
+                                             sample_directory=dataset_root)
 
         # split to train & test
-        self.train_test_split(prepared_file_path, test_size)
+        self.train_test_split(sample_file_path, test_size)
 
         if not self.test_mode:
             self.clear_trush()
@@ -177,18 +177,12 @@ class Dataset():
             raise Exception("Can not get dataset from {}.".format(url))
 
         # save content in response to file
-        total_size = int(resp.headers.get("content-length", 0))
         file_name = self._get_file_name(resp)
         _, ext = os.path.splitext(file_name)
         save_file_path = os.path.abspath(os.path.join(dataset_root, file_name))
         self.logger.info("The dataset is saved to {}".format(save_file_path))
-        with open(save_file_path, "wb") as f:
-            chunk_size = 1024
-            limit = total_size / chunk_size
-            for data in xtqdm(resp.iter_content(chunk_size=chunk_size),
-                              total=limit, unit="B", unit_scale=True):
-                f.write(data)
-
+        self.save_response_content(resp, save_file_path)
+        
         return save_file_path
 
     def extract(self, compressed_file):
@@ -288,49 +282,7 @@ class Dataset():
             moveds.append(t)
         return moveds
 
-    def label_by_dir(self, file_path, target_dir, dir_and_label, task_size=10):
-        label_dirs = dir_and_label.keys()
-        dirs = [d for d in os.listdir(target_dir)
-                if os.path.isdir(os.path.join(target_dir, d))
-                and d in label_dirs]
-
-        write_flg = True
-        for d in dirs:
-            self.logger.info(
-                "Extracting {} (labeled by {}).".format(d, dir_and_label[d]))
-            label = dir_and_label[d]
-            dir_path = os.path.join(target_dir, d)
-            pathes = [os.path.join(dir_path, f) for f in os.listdir(dir_path)]
-            pathes = [p for p in pathes if os.path.isfile(p)]
-            task_length = int(math.ceil(len(pathes) / task_size))
-            for i in xtqdm(range(task_length)):
-                index = i * task_size
-                tasks = pathes[index:(index + task_size)]
-                lines = Parallel(n_jobs=-1)(
-                        delayed(self._make_pair)(label, t) for t in tasks)
-                mode = "w" if write_flg else "a"
-                with open(file_path, mode=mode, encoding="utf-8") as f:
-                    for ln in lines:
-                        f.write(ln)
-                write_flg = False
-    
-    @classmethod
-    def _make_pair(cls, label, path):
-        features = cls._file_to_features(path)
-        line = "\t".join([str(label)] + features) + "\n"
-        return line
-
-    @classmethod
-    def _file_to_features(cls, path):
-        # override this method if you want implements custome process
-        fs = []
-        with open(path, encoding="utf-8") as f:
-            lines = f.readlines()
-            lines = [ln.replace("\t", " ").strip() for ln in lines]
-            fs = [" ".join(lines)]
-        return fs
-
-    def train_test_split(self, original_file_path, test_size):
+    def train_test_split(self, sample_file_path, test_size):
         if test_size < 0 or test_size > 1:
             self.logger.error(
                 "test_size have to be between 0 ~ 1." \
@@ -341,16 +293,16 @@ class Dataset():
 
         self.logger.info("Split to train & test file.")
 
-        total_count = self.get_line_count(original_file_path)
+        total_count = self.get_line_count(sample_file_path)
         test_count = int(round(total_count * test_size))
         test_targets = random.sample(range(total_count), test_count)
         
-        base, ext = os.path.splitext(original_file_path)
+        base, ext = os.path.splitext(sample_file_path)
         train_test_path = [base + x + ext for x in ["_train", "_test"]]
         train_file = open(train_test_path[0], "wb")
         test_file = open(train_test_path[1], "wb")
 
-        with open(original_file_path, "rb") as f:
+        with open(sample_file_path, "rb") as f:
             i = 0
             for line in xtqdm(f, total=total_count):
                 target = test_file if i in test_targets else train_file
@@ -367,19 +319,24 @@ class Dataset():
              test_count / total_count * 100)
             )
 
-        self.trush(original_file_path)
-
         return train_test_path
 
-    def make_samples(self, original_file_path, sample_count):
-        if sample_count == 0:
-            return ""
-        
-        base, ext = os.path.splitext(original_file_path)
-        sample_path = base + "_samples" + ext
+    def make_samples(self, original_file_path, sample_count, sample_directory=None):
+
+        original_dir, original_file = os.path.split(original_file_path)
+        if sample_directory is None:
+            sample_directory = original_dir
+
+        original_filename, original_ext = os.path.splitext(original_file)
+        sample_filename = original_filename + "_samples" + original_ext
+
+        sample_path = os.path.join(sample_directory, sample_filename)
         samples_file = open(sample_path, "wb")
 
         total_count = self.get_line_count(original_file_path)
+        if sample_count == 0:
+            sample_count = total_count
+
         # for reproducibility of sampling, use fixed interval
         sample_target = range(0, total_count, total_count // sample_count)
         with open(original_file_path, "rb") as f:
@@ -420,13 +377,7 @@ class Dataset():
 
         return file_name
 
-    def get_line_count(self, file_path):
-        count = 0
-        with open(file_path, "r+") as fp:
-            buf = mmap.mmap(fp.fileno(), 0)
-            while buf.readline():
-                count += 1
-        return count
+
 
     def trush(self, path):
         self.__trush.append(path)
@@ -445,3 +396,23 @@ class Dataset():
         print("About {}".format(self.name))
         print(self.description)
         print("see also: {}".format(self.site_url))
+
+    @staticmethod
+    def get_line_count(file_path):
+        count = 0
+        with open(file_path, "r+") as fp:
+            buf = mmap.mmap(fp.fileno(), 0)
+            while buf.readline():
+                count += 1
+        return count
+    
+    @staticmethod
+    def save_response_content(response, save_file_path):
+
+        total_size = int(response.headers.get("content-length", 0))
+        with open(save_file_path, "wb") as f:
+            chunk_size = 1024
+            limit = math.ceil(total_size / chunk_size)
+            for data in xtqdm(response.iter_content(chunk_size=chunk_size),
+                              total=limit, unit="B", unit_scale=True):
+                f.write(data)

@@ -1,12 +1,10 @@
 import os
 import sys
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import unittest
 from chazutsu.datasets.framework.resource import Resource
-
-
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
-
+from tests.dataset_base_test import DatasetTestCase
 
 class TestResource(unittest.TestCase):
     TEST_FILES = {
@@ -18,6 +16,7 @@ class TestResource(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        DatasetTestCase.setUpClass()
         for t in cls.TEST_FILES:
             file = cls.TEST_FILES[t]
             if t == "train":
@@ -36,22 +35,14 @@ class TestResource(unittest.TestCase):
             else:
                 content = "\t".join(["-", "normal fruits have flavor.", "0"])
             
-            with open(os.path.join(DATA_ROOT, file), mode="wb") as f:
+            with open(os.path.join(DatasetTestCase.class_test_dir, file), mode="wb") as f:
                 f.write(content.encode("utf-8"))
 
-    @classmethod
-    def tearDownClass(cls):
-        for t in cls.TEST_FILES:
-            file = cls.TEST_FILES[t]
-            path = os.path.join(DATA_ROOT, file)
-            if os.path.exists(path):
-                os.remove(path)
-
     def test_read_resource(self):
-        r = Resource(DATA_ROOT)
+        r = Resource(DatasetTestCase.class_test_dir)
         for t in self.TEST_FILES:
             file = self.TEST_FILES[t]
-            path = os.path.join(DATA_ROOT, file)
+            path = os.path.join(DatasetTestCase.class_test_dir, file)
             ans = ""
             if t == "train":
                 ans = r.train_file_path
@@ -64,7 +55,7 @@ class TestResource(unittest.TestCase):
             self.assertEqual(ans, path)
 
     def test_to_pandas(self):
-        r = Resource(DATA_ROOT, ["sentiment", "text"], "sentiment")
+        r = Resource(DatasetTestCase.class_test_dir, ["sentiment", "text"], "sentiment")
         target, text = r.train_data(split_target=True)
         self.assertEqual(len(target), 4)
         self.assertEqual(len(text), 4)
@@ -72,7 +63,7 @@ class TestResource(unittest.TestCase):
         print(r.train_data().head(1))
 
     def test_to_batch(self):
-        r = Resource(DATA_ROOT, ["sentiment", "text", "score"], "sentiment")
+        r = Resource(DatasetTestCase.class_test_dir, ["sentiment", "text", "score"], "sentiment")
         X, y = r.to_batch("train")
         self.assertEqual(X.shape, (4, 2))
         self.assertEqual(y.shape, (4, 1))
@@ -82,7 +73,7 @@ class TestResource(unittest.TestCase):
         self.assertEqual(X.shape, (4, 5, len(r.vocab)))
 
     def test_to_batch_iter(self):
-        r = Resource(DATA_ROOT, ["sentiment", "text", "score"], "sentiment")
+        r = Resource(DatasetTestCase.class_test_dir, ["sentiment", "text", "score"], "sentiment")
         r.make_vocab()
         batch_size = 2
         fixed_len = 5
