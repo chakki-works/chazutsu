@@ -13,7 +13,7 @@ class TestMultiNLI(DatasetTestCase):
     @classmethod
     def setUpClass(cls):
         DatasetTestCase.setUpClass()
-        dataset_root, extracted = MultiNLI().save_and_extract(DatasetTestCase.class_test_dir)
+        MultiNLI().save_and_extract(DatasetTestCase.class_test_dir)
 
     def test_preprocess(self):
         multi_nli = MultiNLI()

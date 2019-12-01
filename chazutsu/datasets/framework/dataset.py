@@ -177,18 +177,12 @@ class Dataset():
             raise Exception("Can not get dataset from {}.".format(url))
 
         # save content in response to file
-        total_size = int(resp.headers.get("content-length", 0))
         file_name = self._get_file_name(resp)
         _, ext = os.path.splitext(file_name)
         save_file_path = os.path.abspath(os.path.join(dataset_root, file_name))
         self.logger.info("The dataset is saved to {}".format(save_file_path))
-        with open(save_file_path, "wb") as f:
-            chunk_size = 1024
-            limit = math.ceil(total_size / chunk_size)
-            for data in xtqdm(resp.iter_content(chunk_size=chunk_size),
-                              total=limit, unit="B", unit_scale=True):
-                f.write(data)
-
+        self.save_response_content(resp, save_file_path)
+        
         return save_file_path
 
     def extract(self, compressed_file):
@@ -383,13 +377,7 @@ class Dataset():
 
         return file_name
 
-    def get_line_count(self, file_path):
-        count = 0
-        with open(file_path, "r+") as fp:
-            buf = mmap.mmap(fp.fileno(), 0)
-            while buf.readline():
-                count += 1
-        return count
+
 
     def trush(self, path):
         self.__trush.append(path)
@@ -408,3 +396,23 @@ class Dataset():
         print("About {}".format(self.name))
         print(self.description)
         print("see also: {}".format(self.site_url))
+
+    @staticmethod
+    def get_line_count(file_path):
+        count = 0
+        with open(file_path, "r+") as fp:
+            buf = mmap.mmap(fp.fileno(), 0)
+            while buf.readline():
+                count += 1
+        return count
+    
+    @staticmethod
+    def save_response_content(response, save_file_path):
+
+        total_size = int(response.headers.get("content-length", 0))
+        with open(save_file_path, "wb") as f:
+            chunk_size = 1024
+            limit = math.ceil(total_size / chunk_size)
+            for data in xtqdm(response.iter_content(chunk_size=chunk_size),
+                              total=limit, unit="B", unit_scale=True):
+                f.write(data)

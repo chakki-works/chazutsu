@@ -120,13 +120,7 @@ class ReutersNews(Dataset):
         dl_file_path = label_file_path + ".gz"
 
         r = requests.get(self.label_url)
-        total_size = int(r.headers.get("content-length", 0))
-        with open(dl_file_path, "wb") as f:
-            chunk_size = 1024
-            limit = total_size / chunk_size
-            for data in xtqdm(r.iter_content(chunk_size=chunk_size),
-                              total=limit, unit="B", unit_scale=True):
-                f.write(data)
+        self.save_response_content(r, dl_file_path)
         
         with gzip.open(dl_file_path, "rb") as g:
             with open(label_file_path, "wb") as f:

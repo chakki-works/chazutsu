@@ -22,15 +22,12 @@ class TestText8(DatasetTestCase):
 
     def test_download(self):
         r = chazutsu.datasets.Text8.ja().download(directory=DatasetTestCase.class_test_dir)
-        shutil.rmtree(r.root)
+        self.assertIsNotNone(r.train_data())
+        self.assertIsNotNone(r.test_data())
 
     def test_tokenize(self):
         r = chazutsu.datasets.Text8.en().download(directory=DatasetTestCase.class_test_dir)
         r_id = r.make_vocab(min_word_freq=5)
-
-        train_ids = r.train_data()
-        print(train_ids.head(5))
-        print(train_ids["sentence"].map(r_id.ids_to_words).head(5))
 
 
 if __name__ == "__main__":
