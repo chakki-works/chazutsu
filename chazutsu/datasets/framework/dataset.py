@@ -8,6 +8,7 @@ import zipfile
 import tarfile
 import gzip
 import shutil
+import math
 from urllib.parse import urlparse
 
 from chazutsu.datasets.framework.xtqdm import xtqdm
@@ -183,7 +184,7 @@ class Dataset():
         self.logger.info("The dataset is saved to {}".format(save_file_path))
         with open(save_file_path, "wb") as f:
             chunk_size = 1024
-            limit = total_size / chunk_size
+            limit = math.ceil(total_size / chunk_size)
             for data in xtqdm(resp.iter_content(chunk_size=chunk_size),
                               total=limit, unit="B", unit_scale=True):
                 f.write(data)
