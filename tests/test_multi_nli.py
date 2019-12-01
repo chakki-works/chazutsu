@@ -1,27 +1,19 @@
 import os
 import sys
-import shutil
 import unittest
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
+from tests.dataset_base_test import DatasetTestCase
 from chazutsu.datasets.multi_nli import MultiNLI
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data")
-
-
-class TestMultiNLI(unittest.TestCase):
-    PATH = os.path.join(DATA_ROOT, "test_multi_nli")
+class TestMultiNLI(DatasetTestCase):
 
     @classmethod
     def setUpClass(cls):
-        multi_nli = MultiNLI()
-        dataset_root, extracted = multi_nli.save_and_extract(cls.PATH)
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(cls.PATH):
-            shutil.rmtree(cls.PATH)
+        DatasetTestCase.setUpClass()
+        dataset_root, extracted = MultiNLI().save_and_extract(DatasetTestCase.class_test_dir)
 
     def test_preprocess(self):
         multi_nli = MultiNLI()
@@ -32,14 +24,14 @@ class TestMultiNLI(unittest.TestCase):
 
     def test_prepare(self):
         multi_nli = MultiNLI()
-        dataset_root, extracted = multi_nli.save_and_extract(self.PATH)
+        dataset_root, extracted = multi_nli.save_and_extract(DatasetTestCase.class_test_dir)
         train_file = multi_nli.prepare(dataset_root, extracted)
         self.assertTrue(train_file)
         multi_nli.clear_trush()
 
     def test_tokenize(self):
-        r = chazutsu.datasets.MultiNLI.matched().download(directory=self.PATH)
-        r.make_vocab(min_word_count=5)
+        r = chazutsu.datasets.MultiNLI.matched().download(DatasetTestCase.class_test_dir)
+        r.make_vocab(min_word_freq=5)
 
 
 test_jsonl = """

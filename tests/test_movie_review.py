@@ -2,25 +2,17 @@ import os
 import sys
 import shutil
 import unittest
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
+from tests.dataset_base_test import DatasetTestCase
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data/mr")
-if not os.path.exists(DATA_ROOT):
-    os.mkdir(DATA_ROOT)
-
-
-class TestMovieReview(unittest.TestCase):
-
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.exists(DATA_ROOT):
-            shutil.rmtree(DATA_ROOT)
+class TestMovieReview(DatasetTestCase):
 
     def test_prepare_polarity(self):
         d = chazutsu.datasets.MovieReview.polarity()
-        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        dataset_root, extracted = d.save_and_extract(self.test_dir)
         path = d.prepare(dataset_root, extracted)
 
         pos = 0
@@ -50,7 +42,7 @@ class TestMovieReview(unittest.TestCase):
 
     def test_extract_polarity_v1(self):
         d = chazutsu.datasets.MovieReview.polarity_v1()
-        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        dataset_root, extracted = d.save_and_extract(self.test_dir)
         path = d.prepare(dataset_root, extracted)
 
         pos = 0
@@ -79,7 +71,7 @@ class TestMovieReview(unittest.TestCase):
 
     def test_extract_rating(self):
         d = chazutsu.datasets.MovieReview.rating()
-        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        dataset_root, extracted = d.save_and_extract(self.test_dir)
         path = d.prepare(dataset_root, extracted)
 
         try:
@@ -99,7 +91,7 @@ class TestMovieReview(unittest.TestCase):
 
     def test_extract_subjectivity(self):
         d = chazutsu.datasets.MovieReview.subjectivity()
-        dataset_root, extracted = d.save_and_extract(DATA_ROOT)
+        dataset_root, extracted = d.save_and_extract(self.test_dir)
         path = d.prepare(dataset_root, extracted)
 
         sub = 0
@@ -127,7 +119,7 @@ class TestMovieReview(unittest.TestCase):
         self.assertEqual(obj, 5000)
 
     def test_download(self):
-        r = chazutsu.datasets.MovieReview.subjectivity().download(DATA_ROOT)
+        r = chazutsu.datasets.MovieReview.subjectivity().download(self.test_dir)
         target, data = r.test_data(split_target=True)
         self.assertEqual(target.shape[0], data.shape[0])
 

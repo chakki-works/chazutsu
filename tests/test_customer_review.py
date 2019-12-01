@@ -2,18 +2,14 @@ import os
 import sys
 import shutil
 import unittest
-import requests
+
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import chazutsu.datasets
+from tests.dataset_base_test import DatasetTestCase
 from chazutsu.datasets.customer_review import ReviewSentence
 
 
-DATA_ROOT = os.path.join(os.path.dirname(__file__), "data/cr")
-if not os.path.exists(DATA_ROOT):
-    os.mkdir(DATA_ROOT)
-
-
-class TestCustomerReview(unittest.TestCase):
+class TestCustomerReview(DatasetTestCase):
 
     def test_review_sentence(self):
         s1 = "[t]excellent picture quality / color"
@@ -37,14 +33,9 @@ class TestCustomerReview(unittest.TestCase):
                 self.assertEqual(-2, rs.polarity)
                 self.assertEqual("size_-2_u", rs.detail.split(",")[0])
 
-    @classmethod
-    def tearDownClass(cls):
-        if os.path.isdir(DATA_ROOT):
-            shutil.rmtree(DATA_ROOT)
-
     def test_prepare_products5(self):
         d = chazutsu.datasets.CustomerReview.products5()
-        root, extracted = d.save_and_extract(DATA_ROOT)
+        root, extracted = d.save_and_extract(self.test_dir)
         path = d._prepare_products5(root, extracted)
 
         try:
@@ -61,7 +52,7 @@ class TestCustomerReview(unittest.TestCase):
 
     def test_prepare_additional9(self):
         d = chazutsu.datasets.CustomerReview.additional9()
-        root, extracted = d.save_and_extract(DATA_ROOT)
+        root, extracted = d.save_and_extract(self.test_dir)
         path = d._prepare_additional9(root, extracted)
 
         try:
@@ -79,7 +70,7 @@ class TestCustomerReview(unittest.TestCase):
 
     def test_prepare_more3(self):
         d = chazutsu.datasets.CustomerReview.more3()
-        root, extracted = d.save_and_extract(DATA_ROOT)
+        root, extracted = d.save_and_extract(self.test_dir)
         path = d._prepare_more3(root, extracted)
 
         try:
@@ -96,9 +87,8 @@ class TestCustomerReview(unittest.TestCase):
         d.clear_trush()
 
     def test_download(self):
-        resource = chazutsu.datasets.CustomerReview.more3().download(DATA_ROOT)
+        resource = chazutsu.datasets.CustomerReview.more3().download(self.test_dir)
         self.assertTrue(len(resource.data().columns), 4)
-        shutil.rmtree(resource.root)
 
 
 if __name__ == "__main__":
