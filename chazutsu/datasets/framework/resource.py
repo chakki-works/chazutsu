@@ -103,7 +103,7 @@ class Resource():
         return self._to_pandas(self._resource[kind], split_target)
 
     def _to_pandas(self, path, split_target):
-        df = pd.read_csv(path, header=None, names=self.columns, sep="\t")
+        df = pd.read_csv(path, header=None, names=self.columns, sep="\t", quoting=3)
 
         if not split_target:
             return df
