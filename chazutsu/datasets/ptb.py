@@ -24,7 +24,7 @@ class PTB(Dataset):
         if test_size != 0:
             raise Exception("The dataset is already splitted to train & test.")
         # in language modeling, shuffle is not needed
-        return super().download(directory, False, 0, sample_count, force)
+        return super().download(directory, sample_count=sample_count, force=force, shuffle=False, test_size=0)
 
     def prepare(self, dataset_root, extracted_path):
         self.move_extracteds(dataset_root, extracted_path)
